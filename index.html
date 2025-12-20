@@ -315,6 +315,72 @@
         body.water-mode .btn-liquid:hover { --theme-color: #00ffd5; }
         body:not(.dew-mode):not(.ice-mode):not(.water-mode) .btn-liquid:hover { --theme-color: #ffbd59; }
 
+        .nav-panel-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 60;
+            background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0.88) 55%, rgba(0,0,0,0.92) 100%);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 420ms ease;
+        }
+        .nav-panel-backdrop.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .nav-panel {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: min(980px, calc(100% - 2.5rem));
+            transform: translate(-50%, calc(-50% + 14px));
+            opacity: 0;
+            transition: opacity 420ms ease, transform 420ms ease;
+        }
+        .nav-panel-backdrop.show .nav-panel {
+            opacity: 1;
+            transform: translate(-50%, -50%);
+        }
+
+        .nav-panel-shell {
+            border-radius: 28px;
+            background:
+                radial-gradient(circle at 20% 15%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.04) 30%, rgba(0,0,0,0.65) 70%),
+                linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+            border: 1px solid rgba(255,255,255,0.10);
+            -webkit-backdrop-filter: blur(18px) saturate(1.25);
+            backdrop-filter: blur(18px) saturate(1.25);
+            box-shadow: 0 30px 120px rgba(0,0,0,0.55);
+            overflow: hidden;
+        }
+
+        .nav-panel-hairline {
+            height: 1px;
+            width: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+        }
+
+        .nav-panel-close {
+            appearance: none;
+            border: 1px solid rgba(255,255,255,0.16);
+            background: rgba(0,0,0,0.35);
+            color: rgba(255,255,255,0.85);
+            border-radius: 999px;
+            padding: 10px 14px;
+            transition: transform 220ms ease, border-color 220ms ease, color 220ms ease;
+        }
+        .nav-panel-close:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255,255,255,0.28);
+            color: rgba(255,255,255,1);
+        }
+
+        .nav-chip {
+            border: 1px solid rgba(255,255,255,0.14);
+            background: rgba(255,255,255,0.04);
+        }
+
     </style>
 </head>
 <body id="main-body" class="text-white h-screen flex flex-col">
@@ -336,9 +402,9 @@
     <nav class="glass-nav flex justify-between items-center px-8 py-6 fixed w-full z-50">
         <div class="text-3xl font-bold tracking-[0.2em] hero-title dynamic-text">SHENGSHUI</div>
         <div class="hidden md:flex space-x-12 text-xs tracking-[0.2em] uppercase font-medium">
-            <a href="#" class="hover:text-white/70 transition">The Source</a>
-            <a href="#" class="hover:text-white/70 transition">Purification</a>
-            <a href="#" class="hover:text-white/70 transition">Lifestyle</a>
+            <a href="#" class="hover:text-white/70 transition" data-nav-panel="source">The Source</a>
+            <a href="#" class="hover:text-white/70 transition" data-nav-panel="purification">Purification</a>
+            <a href="#" class="hover:text-white/70 transition" data-nav-panel="lifestyle">Lifestyle</a>
         </div>
     </nav>
 
@@ -365,6 +431,50 @@
 
     </main>
 
+    <div id="nav-panel-backdrop" class="nav-panel-backdrop">
+        <div class="nav-panel">
+            <div class="nav-panel-shell">
+                <div class="px-7 md:px-10 pt-8 md:pt-10 pb-7 md:pb-9">
+                    <div class="flex items-start justify-between gap-6">
+                        <div>
+                            <div id="nav-panel-kicker" class="text-[11px] tracking-[0.55em] uppercase text-white/60">THE SOURCE</div>
+                            <div id="nav-panel-title" class="hero-title text-2xl md:text-4xl mt-4 leading-tight">以水源定义奢侈标准</div>
+                        </div>
+                        <button id="nav-panel-close" class="nav-panel-close text-xs tracking-[0.25em] uppercase">Close</button>
+                    </div>
+                    <div class="mt-7 md:mt-8 nav-panel-hairline"></div>
+                    <div class="mt-7 md:mt-8 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10">
+                        <div class="md:col-span-7">
+                            <div id="nav-panel-lead" class="text-base md:text-lg text-white/80 leading-relaxed">
+                                一瓶水的价值，从来不止于解渴，而在于它所承载的地貌、时间与纯度。
+                            </div>
+                            <div id="nav-panel-body" class="mt-6 text-sm md:text-base text-white/60 leading-relaxed space-y-5">
+                                <div>我们以“源头可追溯”为第一原则：从产地环境、矿物结构到微量元素比例，形成稳定且可被验证的风味与口感轮廓。</div>
+                                <div>真正的奢侈，是选择更少的干预，让自然完成更多的工作——让每一滴都拥有清晰的身份。</div>
+                            </div>
+                        </div>
+                        <div class="md:col-span-5">
+                            <div class="grid grid-cols-1 gap-4">
+                                <div class="nav-chip rounded-2xl px-6 py-5">
+                                    <div class="text-[11px] tracking-[0.45em] uppercase text-white/55">Traceability</div>
+                                    <div class="mt-3 text-white/80 text-sm leading-relaxed">水源地信息透明可验证，标准化记录与长期稳定性控制。</div>
+                                </div>
+                                <div class="nav-chip rounded-2xl px-6 py-5">
+                                    <div class="text-[11px] tracking-[0.45em] uppercase text-white/55">Mineral Profile</div>
+                                    <div class="mt-3 text-white/80 text-sm leading-relaxed">矿物结构决定口感层次：柔和、清冽、回甘与余韵的秩序。</div>
+                                </div>
+                                <div class="nav-chip rounded-2xl px-6 py-5">
+                                    <div class="text-[11px] tracking-[0.45em] uppercase text-white/55">Ritual</div>
+                                    <div class="mt-3 text-white/80 text-sm leading-relaxed">把饮水从“日常动作”提升为“仪式”，在细节中感知自我与世界。</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer class="absolute bottom-8 w-full text-center text-xs text-white/40 tracking-widest uppercase z-20">
         Copyright ©2025 Shengshui All Rights Reserved. <a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">京ICP备15004867号-3</a>
     </footer>
@@ -375,6 +485,72 @@
         const body = document.getElementById('main-body');
         const subHeadline = document.getElementById('sub-headline');
         const heroDesc = document.getElementById('hero-desc');
+
+        const navPanelBackdrop = document.getElementById('nav-panel-backdrop');
+        const navPanelClose = document.getElementById('nav-panel-close');
+        const navPanelKicker = document.getElementById('nav-panel-kicker');
+        const navPanelTitle = document.getElementById('nav-panel-title');
+        const navPanelLead = document.getElementById('nav-panel-lead');
+        const navPanelBody = document.getElementById('nav-panel-body');
+
+        const navPanelCopy = {
+            source: {
+                kicker: 'THE SOURCE',
+                title: '以水源定义奢侈标准',
+                lead: '一瓶水的价值，从来不止于解渴，而在于它所承载的地貌、时间与纯度。',
+                body: [
+                    '我们以“源头可追溯”为第一原则：从产地环境、矿物结构到微量元素比例，形成稳定且可被验证的风味与口感轮廓。',
+                    '真正的奢侈，是选择更少的干预，让自然完成更多的工作——让每一滴都拥有清晰的身份。'
+                ]
+            },
+            purification: {
+                kicker: 'PURIFICATION',
+                title: '净化，是对纯度的敬畏',
+                lead: '纯净不是“无”，而是“恰到好处的保留”：去除杂质，保留自然的矿物秩序。',
+                body: [
+                    '我们采用多重物理净化与精密过滤策略，重点控制异味、浑浊与微粒，确保入口的清澈与层次。',
+                    '每一次处理都以“低干预”为前提：不改变水的原生结构与风味骨架，让纯净回归本来。'
+                ]
+            },
+            lifestyle: {
+                kicker: 'LIFESTYLE',
+                title: '把喝水变成你的奢华生活方式',
+                lead: '水是你每天最稳定的投入，也是最容易被忽略的升级项。让它成为你生活质感的底色。',
+                body: [
+                    '从清晨第一口到夜晚收尾，我们建议以不同矿物轮廓匹配不同场景：醒脑、舒缓、搭配轻食或社交。',
+                    '一个更好的饮水系统，意味着更清晰的节律与更高级的自我照顾：少而精，稳定且可持续。'
+                ]
+            }
+        };
+
+        function openNavPanel(key) {
+            const c = navPanelCopy[key];
+            if (!c) return;
+            navPanelKicker.textContent = c.kicker;
+            navPanelTitle.textContent = c.title;
+            navPanelLead.textContent = c.lead;
+            navPanelBody.innerHTML = c.body.map(t => `<div>${t}</div>`).join('');
+            navPanelBackdrop.classList.add('show');
+        }
+
+        function closeNavPanel() {
+            navPanelBackdrop.classList.remove('show');
+        }
+
+        document.querySelectorAll('[data-nav-panel]').forEach((a) => {
+            a.addEventListener('click', (e) => {
+                e.preventDefault();
+                openNavPanel(a.getAttribute('data-nav-panel'));
+            });
+        });
+
+        navPanelClose.addEventListener('click', () => closeNavPanel());
+        navPanelBackdrop.addEventListener('click', (e) => {
+            if (e.target === navPanelBackdrop) closeNavPanel();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeNavPanel();
+        });
 
         const fxCanvas = document.getElementById('fx-canvas');
 

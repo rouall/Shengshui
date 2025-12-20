@@ -116,6 +116,18 @@
             background: radial-gradient(circleAtCenter, rgba(0, 255, 200, 0.18) 0%, rgba(0,0,0,0.72) 100%);
         }
 
+        #fx-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity 1.5s ease;
+        }
+
         /* --- 导航与文字 --- */
         .glass-nav {
             background: rgba(255, 255, 255, 0.02);
@@ -314,6 +326,7 @@
         <div id="video-water" class="bg-video"></div>
     </div>
     <div class="overlay-dynamic"></div>
+    <canvas id="fx-canvas"></canvas>
     <div class="sandstorm"></div>
     <div class="dew-effect"></div>
     <div class="glacier-effect"></div>
@@ -361,6 +374,302 @@
         const body = document.getElementById('main-body');
         const subHeadline = document.getElementById('sub-headline');
         const heroDesc = document.getElementById('hero-desc');
+
+        const fxCanvas = document.getElementById('fx-canvas');
+
+        class FXEngine {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d', { alpha: true });
+                this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+                this.mode = 'desert';
+                this.particles = [];
+                this.bokeh = [];
+                this.t = 0;
+                this.last = performance.now();
+                this.running = true;
+                this.prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+                this.handleResize = this.handleResize.bind(this);
+                window.addEventListener('resize', this.handleResize, { passive: true });
+                this.handleResize();
+                this.seed();
+
+                if (this.prefersReduced) {
+                    this.running = false;
+                    this.clear();
+                    return;
+                }
+
+                requestAnimationFrame((now) => this.frame(now));
+            }
+
+            handleResize() {
+                const w = Math.max(1, window.innerWidth);
+                const h = Math.max(1, window.innerHeight);
+                this.w = w;
+                this.h = h;
+                this.canvas.width = Math.floor(w * this.dpr);
+                this.canvas.height = Math.floor(h * this.dpr);
+                this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+                this.seed();
+            }
+
+            clear() {
+                this.ctx.clearRect(0, 0, this.w, this.h);
+            }
+
+            setMode(mode) {
+                this.mode = mode;
+                this.seed(true);
+            }
+
+            seed(reset = false) {
+                const area = this.w * this.h;
+                const density = Math.max(0.6, Math.min(1.2, area / (1400 * 900)));
+                const maxP = Math.floor(120 * density);
+                const maxB = Math.floor(26 * density);
+
+                if (reset) {
+                    this.particles.length = 0;
+                    this.bokeh.length = 0;
+                }
+
+                while (this.particles.length < maxP) {
+                    this.particles.push(this.makeParticle());
+                }
+                while (this.particles.length > maxP) {
+                    this.particles.pop();
+                }
+                while (this.bokeh.length < maxB) {
+                    this.bokeh.push(this.makeBokeh());
+                }
+                while (this.bokeh.length > maxB) {
+                    this.bokeh.pop();
+                }
+            }
+
+            rand(a, b) {
+                return a + Math.random() * (b - a);
+            }
+
+            makeParticle() {
+                const p = {
+                    x: this.rand(0, this.w),
+                    y: this.rand(0, this.h),
+                    vx: 0,
+                    vy: 0,
+                    r: this.rand(0.6, 2.2),
+                    a: this.rand(0.05, 0.35),
+                    tw: this.rand(0.5, 1.4),
+                    ph: this.rand(0, Math.PI * 2)
+                };
+                return p;
+            }
+
+            makeBokeh() {
+                const b = {
+                    x: this.rand(-this.w * 0.2, this.w * 1.2),
+                    y: this.rand(-this.h * 0.2, this.h * 1.2),
+                    r: this.rand(30, 140),
+                    a: this.rand(0.02, 0.10),
+                    vx: this.rand(-6, 6),
+                    vy: this.rand(-6, 6),
+                    ph: this.rand(0, Math.PI * 2)
+                };
+                return b;
+            }
+
+            frame(now) {
+                if (!this.running) return;
+                const dt = Math.min(0.05, Math.max(0.001, (now - this.last) / 1000));
+                this.last = now;
+                this.t += dt;
+
+                this.ctx.clearRect(0, 0, this.w, this.h);
+                this.ctx.globalCompositeOperation = 'source-over';
+
+                if (this.mode === 'desert') {
+                    this.drawDesert(dt);
+                } else if (this.mode === 'dew') {
+                    this.drawDew(dt);
+                } else if (this.mode === 'ice') {
+                    this.drawIce(dt);
+                } else if (this.mode === 'water') {
+                    this.drawWater(dt);
+                }
+
+                requestAnimationFrame((n) => this.frame(n));
+            }
+
+            drawDesert(dt) {
+                const ctx = this.ctx;
+                const wind = 70;
+                const angle = -Math.PI / 12;
+                const cos = Math.cos(angle);
+                const sin = Math.sin(angle);
+                ctx.save();
+                ctx.globalAlpha = 1;
+                ctx.globalCompositeOperation = 'lighter';
+
+                for (const p of this.particles) {
+                    const speed = wind * (0.6 + 0.8 * p.tw);
+                    p.vx = cos * speed;
+                    p.vy = sin * speed + 6 * Math.sin(this.t * 0.8 + p.ph);
+                    p.x += p.vx * dt;
+                    p.y += p.vy * dt;
+
+                    if (p.x > this.w + 60 || p.y < -60) {
+                        p.x = -60;
+                        p.y = this.rand(this.h * 0.15, this.h * 1.05);
+                    }
+
+                    const len = 10 + 28 * p.tw;
+                    const x2 = p.x - cos * len;
+                    const y2 = p.y - sin * len;
+                    ctx.strokeStyle = `rgba(255, 210, 160, ${p.a * 0.55})`;
+                    ctx.lineWidth = 0.9;
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(x2, y2);
+                    ctx.stroke();
+                }
+
+                ctx.restore();
+            }
+
+            drawDew(dt) {
+                const ctx = this.ctx;
+                ctx.save();
+                ctx.globalCompositeOperation = 'screen';
+
+                for (const b of this.bokeh) {
+                    b.x += (b.vx * 0.15 + 10 * Math.sin(this.t * 0.35 + b.ph)) * dt;
+                    b.y += (b.vy * 0.15 + 8 * Math.cos(this.t * 0.3 + b.ph)) * dt;
+
+                    if (b.x < -this.w * 0.25) b.x = this.w * 1.25;
+                    if (b.x > this.w * 1.25) b.x = -this.w * 0.25;
+                    if (b.y < -this.h * 0.25) b.y = this.h * 1.25;
+                    if (b.y > this.h * 1.25) b.y = -this.h * 0.25;
+
+                    const g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+                    g.addColorStop(0, `rgba(210, 255, 250, ${b.a})`);
+                    g.addColorStop(0.35, `rgba(160, 230, 255, ${b.a * 0.55})`);
+                    g.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                    ctx.fillStyle = g;
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.globalCompositeOperation = 'lighter';
+                for (const p of this.particles) {
+                    p.vx = 8 + 10 * Math.sin(this.t * 0.8 + p.ph);
+                    p.vy = -10 + 8 * Math.cos(this.t * 0.7 + p.ph);
+                    p.x += p.vx * dt;
+                    p.y += p.vy * dt;
+                    if (p.x > this.w + 30) p.x = -30;
+                    if (p.y < -30) p.y = this.h + 30;
+
+                    const r = 0.8 + 1.8 * (0.5 + 0.5 * Math.sin(this.t * 1.6 + p.ph));
+                    ctx.fillStyle = `rgba(255, 255, 255, ${p.a * 0.35})`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.restore();
+            }
+
+            drawIce(dt) {
+                const ctx = this.ctx;
+                ctx.save();
+                ctx.globalCompositeOperation = 'screen';
+
+                for (const p of this.particles) {
+                    const driftX = 10 * Math.sin(this.t * 0.6 + p.ph);
+                    p.vx = driftX;
+                    p.vy = 18 + 22 * p.tw;
+                    p.x += p.vx * dt;
+                    p.y += p.vy * dt;
+                    if (p.y > this.h + 40) {
+                        p.y = -40;
+                        p.x = this.rand(-20, this.w + 20);
+                    }
+
+                    const s = 0.6 + 1.2 * p.tw;
+                    const tw = 0.45 + 0.55 * Math.sin(this.t * 2.2 + p.ph);
+                    ctx.fillStyle = `rgba(235, 250, 255, ${(0.05 + 0.22 * tw) * 0.7})`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, s, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.globalCompositeOperation = 'lighter';
+                for (let i = 0; i < this.bokeh.length; i++) {
+                    const b = this.bokeh[i];
+                    b.x += 6 * Math.sin(this.t * 0.25 + b.ph) * dt;
+                    b.y += 8 * Math.cos(this.t * 0.22 + b.ph) * dt;
+                    const r = b.r * 0.75;
+                    const g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, r);
+                    g.addColorStop(0, `rgba(255,255,255,${b.a * 0.55})`);
+                    g.addColorStop(0.55, `rgba(180,230,255,${b.a * 0.35})`);
+                    g.addColorStop(1, 'rgba(0,0,0,0)');
+                    ctx.fillStyle = g;
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, r, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.restore();
+            }
+
+            drawWater(dt) {
+                const ctx = this.ctx;
+                ctx.save();
+                ctx.globalCompositeOperation = 'screen';
+                const w = this.w;
+                const h = this.h;
+
+                const t = this.t;
+                const cx = w * 0.5;
+                const cy = h * 0.55;
+                const base = Math.max(w, h) * 0.8;
+                for (let i = 0; i < 5; i++) {
+                    const k = i + 1;
+                    const r = base * (0.18 + 0.12 * k) * (1 + 0.02 * Math.sin(t * (0.4 + 0.1 * k)));
+                    const ox = cx + Math.sin(t * (0.22 + 0.06 * k) + i) * w * 0.08;
+                    const oy = cy + Math.cos(t * (0.18 + 0.05 * k) + i) * h * 0.06;
+                    const g = ctx.createRadialGradient(ox, oy, 0, ox, oy, r);
+                    g.addColorStop(0, `rgba(0, 255, 210, ${0.08 - i * 0.012})`);
+                    g.addColorStop(0.45, `rgba(0, 210, 255, ${0.06 - i * 0.010})`);
+                    g.addColorStop(1, 'rgba(0,0,0,0)');
+                    ctx.fillStyle = g;
+                    ctx.beginPath();
+                    ctx.arc(ox, oy, r, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.globalCompositeOperation = 'lighter';
+                for (const p of this.particles) {
+                    p.vx = 18 + 14 * Math.sin(t * 0.9 + p.ph);
+                    p.vy = 4 + 8 * Math.cos(t * 0.8 + p.ph);
+                    p.x += p.vx * dt;
+                    p.y += p.vy * dt;
+                    if (p.x > w + 30) p.x = -30;
+                    if (p.y > h + 30) p.y = -30;
+                    const rr = 0.8 + 1.6 * p.tw;
+                    ctx.fillStyle = `rgba(255,255,255,${p.a * 0.25})`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, rr, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.restore();
+            }
+        }
+
+        const fx = new FXEngine(fxCanvas);
 
         const bgLayers = {
             desert: document.getElementById('video-desert'),
@@ -496,6 +805,7 @@
             applyModeClass(nextMode);
             setThemeColor(nextMode);
             setRandomBackground(nextMode);
+            fx.setMode(nextMode);
 
             subHeadline.style.opacity = 0;
             heroDesc.style.opacity = 0;
@@ -518,6 +828,7 @@
         applyModeClass('desert');
         setThemeColor('desert');
         setRandomBackground('desert');
+        fx.setMode('desert');
         setRandomBackground('dew');
         setRandomBackground('ice');
         setRandomBackground('water');

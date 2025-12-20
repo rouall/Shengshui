@@ -25,7 +25,7 @@
         .bg-video {
             position: absolute; top: 50%; left: 50%;
             min-width: 100%; min-height: 100%;
-            width: auto; height: auto;
+            width: 100%; height: 100%;
             transform: translate(-50%, -50%) scale(1.1); /* 微放大避免边缘 */
             object-fit: cover;
             transition: opacity 1.5s ease-in-out; /* 电影级溶解过渡 */
@@ -39,20 +39,26 @@
         
         #video-desert {
             opacity: 1; z-index: 1; filter: contrast(1.3) brightness(0.9) sepia(0.2) saturate(1.2);
-            background-image: url('https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-image: url('resource/images/desert/photo-1451418280345-67a6b4d10bba.avif');
             animation: desert-sway 20s ease-in-out infinite;
         }
         
         #video-dew {
             opacity: 0; z-index: 2; filter: contrast(1.1) brightness(0.9);
-            background-image: url('https://images.pexels.com/photos/139312/pexels-photo-139312.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=1');
+            background-image: url('resource/images/dew/photo-1523712999610-f77fbcfc3843.avif');
             animation: dew-shimmer 15s ease-in-out infinite;
         }
         
-        #video-glacier {
+        #video-ice {
             opacity: 0; z-index: 3; filter: contrast(1.3) brightness(0.8) saturate(0.8);
-            background-image: url('https://images.pexels.com/photos/268533/pexels-photo-268533.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=1');
+            background-image: url('resource/images/ice/photo-1459666644539-a9755287d6b0.avif');
             animation: glacier-glow 25s ease-in-out infinite;
+        }
+
+        #video-water {
+            opacity: 0; z-index: 4; filter: contrast(1.2) brightness(0.85) saturate(1.1);
+            background-image: url('resource/images/water/photo-1497436072909-60f360e1d4b1.avif');
+            animation: water-drift 22s ease-in-out infinite;
         }
         
         /* 背景动画 */
@@ -62,8 +68,8 @@
         }
         
         @keyframes dew-shimmer {
-            0%, 100% { transform: scale(1); filter: brightness(0.9); }
-            50% { transform: scale(1.05); filter: brightness(1.1); }
+            0%, 100% { transform: translate(-50%, -50%) scale(1); filter: brightness(0.9); }
+            50% { transform: translate(-50%, -50%) scale(1.05); filter: brightness(1.1); }
         }
         
         @keyframes glacier-glow {
@@ -71,15 +77,28 @@
             50% { filter: contrast(1.5) brightness(1) saturate(1); }
         }
 
+        @keyframes water-drift {
+            0%, 100% { background-position: 50% 40%; transform: translate(-50%, -50%) scale(1.08); }
+            50% { background-position: 50% 60%; transform: translate(-50%, -50%) scale(1.12); }
+        }
+
         /* 当激活晨露模式时 */
         body.dew-mode #video-desert { opacity: 0; }
         body.dew-mode #video-dew { opacity: 1; }
-        body.dew-mode #video-glacier { opacity: 0; }
+        body.dew-mode #video-ice { opacity: 0; }
+        body.dew-mode #video-water { opacity: 0; }
 
         /* 当激活冰川模式时 */
-        body.glacier-mode #video-desert { opacity: 0; }
-        body.glacier-mode #video-dew { opacity: 0; }
-        body.glacier-mode #video-glacier { opacity: 1; }
+        body.ice-mode #video-desert { opacity: 0; }
+        body.ice-mode #video-dew { opacity: 0; }
+        body.ice-mode #video-ice { opacity: 1; }
+        body.ice-mode #video-water { opacity: 0; }
+
+        /* 当激活水域模式时 */
+        body.water-mode #video-desert { opacity: 0; }
+        body.water-mode #video-dew { opacity: 0; }
+        body.water-mode #video-ice { opacity: 0; }
+        body.water-mode #video-water { opacity: 1; }
 
         /* 动态遮罩层：沙漠时偏暖，晨露时偏冷，冰川时偏蓝 */
         .overlay-dynamic {
@@ -90,8 +109,11 @@
         body.dew-mode .overlay-dynamic {
             background: radial-gradient(circleAtCenter, rgba(0, 210, 255, 0.2) 0%, rgba(0,0,0,0.5) 100%);
         }
-        body.glacier-mode .overlay-dynamic {
+        body.ice-mode .overlay-dynamic {
             background: radial-gradient(circleAtCenter, rgba(135, 206, 250, 0.2) 0%, rgba(0,0,0,0.7) 100%);
+        }
+        body.water-mode .overlay-dynamic {
+            background: radial-gradient(circleAtCenter, rgba(0, 255, 200, 0.18) 0%, rgba(0,0,0,0.72) 100%);
         }
 
         /* --- 导航与文字 --- */
@@ -109,7 +131,8 @@
         /* 动态文字颜色切换 */
         .dynamic-text { transition: color 1.5s ease; color: #ffbd59; } /* 沙漠金 */
         body.dew-mode .dynamic-text { color: #00d2ff; } /* 晨露蓝 */
-        body.glacier-mode .dynamic-text { color: #87cefa; } /* 冰川浅蓝 */
+        body.ice-mode .dynamic-text { color: #87cefa; } /* 冰川浅蓝 */
+        body.water-mode .dynamic-text { color: #00ffd5; } /* 水域奢华薄荷青 */
 
         /* --- 沙漠风沙效果 --- */
         .sandstorm {
@@ -163,7 +186,7 @@
             100% { background-position: 0% 0; transform: translateY(-5px) rotateZ(0deg); opacity: 0.4; filter: blur(3px); }
         }
         /* 非沙漠模式时隐藏风沙效果 */
-        body:not(.dew-mode):not(.glacier-mode) .sandstorm {
+        body:not(.dew-mode):not(.ice-mode):not(.water-mode) .sandstorm {
             opacity: 1;
         }
 
@@ -244,9 +267,13 @@
             50% { opacity: 0.8; transform: scale(1.05) rotate(5deg); }
         }
         /* 冰川模式时显示冰晶效果 */
-        body.glacier-mode .glacier-effect {
+        body.ice-mode .glacier-effect {
             opacity: 1;
         }
+
+        /* 水域模式可额外提升整体透亮感 */
+        body.water-mode .dew-effect { opacity: 0.35; }
+        body.water-mode .glacier-effect { opacity: 0.15; }
 
         /* --- 液态感应按钮 --- */
         .btn-liquid {
@@ -271,8 +298,9 @@
         }
         .btn-liquid:hover::before { left: 100%; }
         body.dew-mode .btn-liquid:hover { --theme-color: #00d2ff; }
-        body.glacier-mode .btn-liquid:hover { --theme-color: #87cefa; }
-        body:not(.dew-mode):not(.glacier-mode) .btn-liquid:hover { --theme-color: #ffbd59; }
+        body.ice-mode .btn-liquid:hover { --theme-color: #87cefa; }
+        body.water-mode .btn-liquid:hover { --theme-color: #00ffd5; }
+        body:not(.dew-mode):not(.ice-mode):not(.water-mode) .btn-liquid:hover { --theme-color: #ffbd59; }
 
     </style>
 </head>
@@ -282,7 +310,8 @@
         <!-- 使用背景图片替代视频，避免跨域问题 -->
         <div id="video-desert" class="bg-video"></div>
         <div id="video-dew" class="bg-video"></div>
-        <div id="video-glacier" class="bg-video"></div>
+        <div id="video-ice" class="bg-video"></div>
+        <div id="video-water" class="bg-video"></div>
     </div>
     <div class="overlay-dynamic"></div>
     <div class="sandstorm"></div>
@@ -323,17 +352,102 @@
     </main>
 
     <footer class="absolute bottom-8 w-full text-center text-xs text-white/40 tracking-widest uppercase z-20">
-        Premium Water Selections & Advanced Hydration Technology Worldwide.
+        ©2022-2026 发现每一滴的价值
     </footer>
 
     <script>
-        // --- 核心逻辑：三种模式切换（沙漠、晨露、冰川） ---
+        // --- 核心逻辑：四种模式切换（沙漠、晨露、冰川、水域） ---
 
         const body = document.getElementById('main-body');
         const subHeadline = document.getElementById('sub-headline');
         const heroDesc = document.getElementById('hero-desc');
 
-        // 定义三种模式的文案
+        const bgLayers = {
+            desert: document.getElementById('video-desert'),
+            dew: document.getElementById('video-dew'),
+            ice: document.getElementById('video-ice'),
+            water: document.getElementById('video-water')
+        };
+
+        const imagePool = {
+            desert: [
+                'photo-1451418280345-67a6b4d10bba.avif',
+                'photo-1470364798856-7a74180378dc.avif',
+                'photo-1489493173507-6feea31f12ff.avif',
+                'photo-1506316178580-fe3a431d65b5.avif',
+                'photo-1531430550463-9658d67c492d.avif',
+                'photo-1554147090-e1221a04a025.avif',
+                'photo-1559160581-44bd4222d397.avif',
+                'photo-1559586616-361e18714958.avif',
+                'photo-1587321174565-73cffc72e10a.avif',
+                'photo-1593956861273-5c74c3d0d8a8.avif'
+            ],
+            dew: [
+                'photo-1470004914212-05527e49370b_compressed (1) (1)_compressed_compressed.jpeg',
+                'photo-1482192596544-9eb780fc7f66.avif',
+                'photo-1523712999610-f77fbcfc3843.avif',
+                'photo-1591095595140-5d351fde3f1a.avif',
+                'photo-1600539507015-b01a9f4284c2.avif',
+                'photo-1603663716376-95642cc5db05.avif',
+                'photo-1608958683988-b25e2b327bb4.avif',
+                'photo-1620835827006-84fa63476dd9.avif',
+                'photo-1632109204511-e1b3416f61a9.avif',
+                'photo-1651766466581-ab0aa5f5ecdf.avif',
+                'photo-1668351734682-cf7ea0dbc030.avif',
+                'photo-1706414012102-cdc56450124a.avif'
+            ],
+            ice: [
+                'ice.jpeg',
+                'photo-1459666644539-a9755287d6b0.avif',
+                'photo-1494564605686-2e931f77a8e2.avif',
+                'photo-1507039915464-9d829b6d2d78.avif',
+                'photo-1535752385016-16aa049b6a8d.avif',
+                'photo-1690286629800-efe2a219343f.avif'
+            ],
+            water: [
+                'photo-1497436072909-60f360e1d4b1.avif',
+                'photo-1549285107-585b63dbcee8.avif',
+                'photo-1588847249519-06a31e3428dd.avif',
+                'photo-1615529328331-f8917597711f.avif',
+                'photo-1657549918210-5390583fb598.avif',
+                'photo-1657549918210-659580c024d7.avif'
+            ]
+        };
+
+        const lastPick = {
+            desert: null,
+            dew: null,
+            ice: null,
+            water: null
+        };
+
+        function pickRandom(mode) {
+            const list = imagePool[mode] || [];
+            if (!list.length) return null;
+
+            if (list.length === 1) return list[0];
+
+            let next = list[Math.floor(Math.random() * list.length)];
+            if (lastPick[mode] && list.length > 1) {
+                let guard = 0;
+                while (next === lastPick[mode] && guard < 10) {
+                    next = list[Math.floor(Math.random() * list.length)];
+                    guard += 1;
+                }
+            }
+            lastPick[mode] = next;
+            return next;
+        }
+
+        function setRandomBackground(mode) {
+            const file = pickRandom(mode);
+            if (!file) return;
+            const raw = `resource/images/${mode}/${file}`;
+            const url = encodeURI(raw);
+            bgLayers[mode].style.backgroundImage = `url('${url}')`;
+        }
+
+        // 定义四种模式的文案
         const content = {
             desert: {
                 sub: "· 感受生命的极度渴望 ·",
@@ -343,48 +457,75 @@
                 sub: "· 沉浸自然的极致滋养 ·",
                 desc: "源自晨曦微露的刹那，让每一个细胞重新呼吸。"
             },
-            glacier: {
+            ice: {
                 sub: "· 体验极地的纯净力量 ·",
-                desc: "来自冰川深处的馈赠，历经千年淬炼的极致纯净。"
+                desc: "来自冰原深处的馈赠，历经千年淬炼的极致纯净。"
+            },
+            water: {
+                sub: "· 源自自然的圣水 ·",
+                desc: "以矿物与时间雕刻的层次感，入口即是高级的宁静。"
             }
         };
 
-        let currentMode = 0; // 0=沙漠, 1=晨露, 2=冰川
-        const modes = ['desert', 'dew', 'glacier'];
+        let currentMode = 0; // 0=沙漠, 1=晨露, 2=冰川, 3=水域
+        const modes = ['desert', 'dew', 'ice', 'water'];
 
-        function toggleMode() {
-            // 1. 移除所有模式类
-            body.classList.remove('dew-mode', 'glacier-mode');
-            
-            // 2. 计算下一个模式
-            currentMode = (currentMode + 1) % 3;
-            const nextMode = modes[currentMode];
-            
-            // 3. 添加当前模式类
+        function applyModeClass(nextMode) {
+            body.classList.remove('dew-mode', 'ice-mode', 'water-mode');
+
             if (nextMode === 'dew') {
                 body.classList.add('dew-mode');
-            } else if (nextMode === 'glacier') {
-                body.classList.add('glacier-mode');
+            } else if (nextMode === 'ice') {
+                body.classList.add('ice-mode');
+            } else if (nextMode === 'water') {
+                body.classList.add('water-mode');
             }
+        }
 
-            // 4. 文案淡出
+        function setThemeColor(nextMode) {
+            const theme = {
+                desert: '#ffbd59',
+                dew: '#00d2ff',
+                ice: '#87cefa',
+                water: '#00ffd5'
+            };
+            document.documentElement.style.setProperty('--theme-color', theme[nextMode] || '#00d2ff');
+        }
+
+        function enterMode(nextMode) {
+            applyModeClass(nextMode);
+            setThemeColor(nextMode);
+            setRandomBackground(nextMode);
+
             subHeadline.style.opacity = 0;
             heroDesc.style.opacity = 0;
 
-            // 5. 文案内容切换并淡入 (等待CSS过渡完成一半时进行)
             setTimeout(() => {
                 subHeadline.innerText = content[nextMode].sub;
                 heroDesc.innerText = content[nextMode].desc;
                 subHeadline.style.opacity = 1;
                 heroDesc.style.opacity = 1;
-            }, 750); // 对应 CSS transition 1.5s 的一半时间
+            }, 750);
         }
 
-        // 设置定时切换，例如每 7 秒切换一次场景
-        // 首次延迟执行
+        function toggleMode() {
+            currentMode = (currentMode + 1) % 4;
+            const nextMode = modes[currentMode];
+            enterMode(nextMode);
+        }
+
+        // 初始化：先落在沙漠，并随机一张沙漠图
+        applyModeClass('desert');
+        setThemeColor('desert');
+        setRandomBackground('desert');
+        setRandomBackground('dew');
+        setRandomBackground('ice');
+        setRandomBackground('water');
+
+        // 设置定时切换，例如每 7 秒切换一次场景（首次延迟执行）
         setTimeout(() => {
             toggleMode();
-            setInterval(toggleMode, 7000); 
+            setInterval(toggleMode, 7000);
         }, 3000);
 
     </script>

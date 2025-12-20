@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHENGSHUI | 从荒芜到新生</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --theme-color: #00d2ff; /* 默认水蓝色 */
+        }
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: #000;
+            overflow-x: hidden;
+            transition: all 1s ease;
+        }
+
+        /* --- 双视频背景核心样式 --- */
+        .video-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2; overflow: hidden;
+        }
+        .bg-video {
+            position: absolute; top: 50%; left: 50%;
+            min-width: 100%; min-height: 100%;
+            width: auto; height: auto;
+            transform: translate(-50%, -50%) scale(1.1); /* 微放大避免边缘 */
+            object-fit: cover;
+            transition: opacity 1.5s ease-in-out; /* 电影级溶解过渡 */
+        }
+        /* 使用背景图片替代视频，并添加动画效果 */
+        .bg-video {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        #video-desert {
+            opacity: 1; z-index: 1; filter: contrast(1.3) brightness(0.9) sepia(0.2) saturate(1.2);
+            background-image: url('https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            animation: desert-sway 20s ease-in-out infinite;
+        }
+        
+        #video-dew {
+            opacity: 0; z-index: 2; filter: contrast(1.1) brightness(0.9);
+            background-image: url('https://images.pexels.com/photos/139312/pexels-photo-139312.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=1');
+            animation: dew-shimmer 15s ease-in-out infinite;
+        }
+        
+        #video-glacier {
+            opacity: 0; z-index: 3; filter: contrast(1.3) brightness(0.8) saturate(0.8);
+            background-image: url('https://images.pexels.com/photos/268533/pexels-photo-268533.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=1');
+            animation: glacier-glow 25s ease-in-out infinite;
+        }
+        
+        /* 背景动画 */
+        @keyframes desert-sway {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        @keyframes dew-shimmer {
+            0%, 100% { transform: scale(1); filter: brightness(0.9); }
+            50% { transform: scale(1.05); filter: brightness(1.1); }
+        }
+        
+        @keyframes glacier-glow {
+            0%, 100% { filter: contrast(1.3) brightness(0.8) saturate(0.8); }
+            50% { filter: contrast(1.5) brightness(1) saturate(1); }
+        }
+
+        /* 当激活晨露模式时 */
+        body.dew-mode #video-desert { opacity: 0; }
+        body.dew-mode #video-dew { opacity: 1; }
+        body.dew-mode #video-glacier { opacity: 0; }
+
+        /* 当激活冰川模式时 */
+        body.glacier-mode #video-desert { opacity: 0; }
+        body.glacier-mode #video-dew { opacity: 0; }
+        body.glacier-mode #video-glacier { opacity: 1; }
+
+        /* 动态遮罩层：沙漠时偏暖，晨露时偏冷，冰川时偏蓝 */
+        .overlay-dynamic {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: radial-gradient(circleAtCenter, rgba(255, 166, 0, 0.2) 0%, rgba(0,0,0,0.6) 100%);
+            transition: background 1.5s ease;
+        }
+        body.dew-mode .overlay-dynamic {
+            background: radial-gradient(circleAtCenter, rgba(0, 210, 255, 0.2) 0%, rgba(0,0,0,0.5) 100%);
+        }
+        body.glacier-mode .overlay-dynamic {
+            background: radial-gradient(circleAtCenter, rgba(135, 206, 250, 0.2) 0%, rgba(0,0,0,0.7) 100%);
+        }
+
+        /* --- 导航与文字 --- */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .hero-title {
+            font-family: 'Cinzel', serif; /* 使用更具神圣感的字体 */
+            letter-spacing: 0.15em;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        /* 动态文字颜色切换 */
+        .dynamic-text { transition: color 1.5s ease; color: #ffbd59; } /* 沙漠金 */
+        body.dew-mode .dynamic-text { color: #00d2ff; } /* 晨露蓝 */
+        body.glacier-mode .dynamic-text { color: #87cefa; } /* 冰川浅蓝 */
+
+        /* --- 沙漠风沙效果 --- */
+        .sandstorm {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+            background: linear-gradient(90deg, transparent, rgba(210, 180, 140, 0.05), transparent),
+                        linear-gradient(90deg, transparent 20%, rgba(160, 82, 45, 0.05), transparent 70%);
+            background-size: 200% 100%;
+            animation: sandstorm-slow 18s ease-in-out infinite;
+        }
+        /* 快速风沙层 - 模拟近地面强风 */
+        .sandstorm::before {
+            content: '';
+            position: absolute; top: 0; left: 0; width: 200%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(244, 214, 172, 0.25), transparent),
+                        linear-gradient(90deg, transparent 10%, rgba(222, 184, 135, 0.2), transparent 80%),
+                        linear-gradient(90deg, transparent 30%, rgba(160, 82, 45, 0.15), transparent 60%);
+            animation: sandstorm-fast 6s linear infinite;
+        }
+        @keyframes sandstorm-fast {
+            0% { transform: translateX(-100%) translateY(0) rotateZ(0deg); opacity: 0.7; filter: blur(1px); }
+            25% { opacity: 0.9; filter: blur(2px); }
+            50% { opacity: 1; transform: translateX(-50%) translateY(-5px) rotateZ(0.5deg); filter: blur(3px); }
+            75% { opacity: 0.9; filter: blur(2px); }
+            100% { transform: translateX(0%) translateY(-10px) rotateZ(0deg); opacity: 0.7; filter: blur(1px); }
+        }
+        /* 中速风沙层 - 模拟中层风 */
+        .sandstorm::after {
+            content: '';
+            position: absolute; top: 0; left: 0; width: 300%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(189, 155, 109, 0.2), transparent),
+                        linear-gradient(90deg, transparent 20%, rgba(160, 82, 45, 0.15), transparent 70%),
+                        linear-gradient(90deg, transparent 40%, rgba(210, 180, 140, 0.1), transparent 90%);
+            animation: sandstorm-medium 10s linear infinite;
+        }
+        @keyframes sandstorm-medium {
+            0% { transform: translateX(-150%) translateY(5px) rotateZ(0deg); opacity: 0.6; filter: blur(2px); }
+            25% { opacity: 0.8; filter: blur(3px); }
+            50% { opacity: 0.9; transform: translateX(-75%) translateY(0px) rotateZ(-0.3deg); filter: blur(4px); }
+            75% { opacity: 0.8; filter: blur(3px); }
+            100% { transform: translateX(0%) translateY(-5px) rotateZ(0deg); opacity: 0.6; filter: blur(2px); }
+        }
+        /* 慢速风沙层 - 模拟高空沙尘 */
+        @keyframes sandstorm-slow {
+            0% { background-position: -200% 0; transform: translateY(5px) rotateZ(0deg); opacity: 0.4; filter: blur(3px); }
+            25% { opacity: 0.6; filter: blur(4px); }
+            50% { opacity: 0.8; background-position: -100% 0; transform: translateY(0px) rotateZ(0.2deg); filter: blur(5px); }
+            75% { opacity: 0.6; filter: blur(4px); }
+            100% { background-position: 0% 0; transform: translateY(-5px) rotateZ(0deg); opacity: 0.4; filter: blur(3px); }
+        }
+        /* 非沙漠模式时隐藏风沙效果 */
+        body:not(.dew-mode):not(.glacier-mode) .sandstorm {
+            opacity: 1;
+        }
+
+        /* --- 晨露闪烁效果 --- */
+        .dew-effect {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+        .dew-effect::before {
+            content: '';
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.3) 0%, transparent 20%),
+                        radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.3) 0%, transparent 20%),
+                        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 30%),
+                        radial-gradient(circle at 10% 80%, rgba(255, 255, 255, 0.25) 0%, transparent 15%),
+                        radial-gradient(circle at 90% 20%, rgba(255, 255, 255, 0.25) 0%, transparent 15%);
+            animation: dew-flicker 5s ease-in-out infinite;
+        }
+        .dew-effect::after {
+            content: '';
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 30% 40%, rgba(173, 216, 230, 0.2) 0%, transparent 25%),
+                        radial-gradient(circle at 70% 60%, rgba(173, 216, 230, 0.2) 0%, transparent 25%),
+                        radial-gradient(circle at 40% 70%, rgba(173, 216, 230, 0.15) 0%, transparent 20%),
+                        radial-gradient(circle at 60% 30%, rgba(173, 216, 230, 0.15) 0%, transparent 20%);
+            animation: dew-flicker-slow 7s ease-in-out infinite;
+        }
+        @keyframes dew-flicker {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+        @keyframes dew-flicker-slow {
+            0%, 100% { opacity: 0.2; background-position: 0% 0%; }
+            50% { opacity: 0.5; background-position: 10% 10%; }
+        }
+        /* 晨露模式时显示露珠效果 */
+        body.dew-mode .dew-effect {
+            opacity: 1;
+        }
+
+        /* --- 冰川冰晶效果 --- */
+        .glacier-effect {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+        .glacier-effect::before {
+            content: '';
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.4) 0%, transparent 10%),
+                        radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.4) 0%, transparent 15%),
+                        radial-gradient(circle at 40% 60%, rgba(255, 255, 255, 0.3) 0%, transparent 20%),
+                        radial-gradient(circle at 20% 70%, rgba(255, 255, 255, 0.35) 0%, transparent 12%),
+                        radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.35) 0%, transparent 12%),
+                        radial-gradient(circle at 10% 40%, rgba(255, 255, 255, 0.3) 0%, transparent 10%),
+                        radial-gradient(circle at 90% 60%, rgba(255, 255, 255, 0.3) 0%, transparent 10%);
+            animation: glacier-sparkle 3s ease-in-out infinite;
+        }
+        .glacier-effect::after {
+            content: '';
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(173, 216, 230, 0.25) 0%, transparent 25%),
+                        radial-gradient(circle at 30% 80%, rgba(173, 216, 230, 0.2) 0%, transparent 20%),
+                        radial-gradient(circle at 70% 20%, rgba(173, 216, 230, 0.2) 0%, transparent 20%),
+                        radial-gradient(circle at 60% 70%, rgba(173, 216, 230, 0.15) 0%, transparent 15%),
+                        radial-gradient(circle at 40% 30%, rgba(173, 216, 230, 0.15) 0%, transparent 15%);
+            animation: glacier-sparkle-slow 5s ease-in-out infinite;
+        }
+        @keyframes glacier-sparkle {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        @keyframes glacier-sparkle-slow {
+            0%, 100% { opacity: 0.3; transform: scale(1) rotate(0deg); }
+            50% { opacity: 0.8; transform: scale(1.05) rotate(5deg); }
+        }
+        /* 冰川模式时显示冰晶效果 */
+        body.glacier-mode .glacier-effect {
+            opacity: 1;
+        }
+
+        /* --- 液态感应按钮 --- */
+        .btn-liquid {
+            position: relative;
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            overflow: hidden;
+            transition: all 0.5s;
+            backdrop-filter: blur(5px);
+        }
+        .btn-liquid::before {
+            content: '';
+            position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: all 0.6s;
+        }
+        .btn-liquid:hover {
+            border-color: var(--theme-color);
+            box-shadow: 0 0 30px var(--theme-color);
+            transform: translateY(-3px);
+        }
+        .btn-liquid:hover::before { left: 100%; }
+        body.dew-mode .btn-liquid:hover { --theme-color: #00d2ff; }
+        body.glacier-mode .btn-liquid:hover { --theme-color: #87cefa; }
+        body:not(.dew-mode):not(.glacier-mode) .btn-liquid:hover { --theme-color: #ffbd59; }
+
+    </style>
+</head>
+<body id="main-body" class="text-white h-screen flex flex-col">
+
+    <div class="video-container">
+        <!-- 使用背景图片替代视频，避免跨域问题 -->
+        <div id="video-desert" class="bg-video"></div>
+        <div id="video-dew" class="bg-video"></div>
+        <div id="video-glacier" class="bg-video"></div>
+    </div>
+    <div class="overlay-dynamic"></div>
+    <div class="sandstorm"></div>
+    <div class="dew-effect"></div>
+    <div class="glacier-effect"></div>
+
+
+    <nav class="glass-nav flex justify-between items-center px-8 py-6 fixed w-full z-50">
+        <div class="text-3xl font-bold tracking-[0.2em] hero-title dynamic-text">SHENGSHUI</div>
+        <div class="hidden md:flex space-x-12 text-xs tracking-[0.2em] uppercase font-medium">
+            <a href="#" class="hover:text-white/70 transition">The Source</a>
+            <a href="#" class="hover:text-white/70 transition">Purification</a>
+            <a href="#" class="hover:text-white/70 transition">Lifestyle</a>
+        </div>
+    </nav>
+
+    <main class="flex-grow flex flex-col justify-center items-center text-center px-4 relative z-10">
+        
+        <div id="sub-headline" class="text-sm md:text-base tracking-[0.5em] uppercase mb-6 font-light dynamic-text transition-all duration-1000">
+            · 感受生命的极度渴望 ·
+        </div>
+
+        <h1 class="text-6xl md:text-9xl hero-title mb-10 leading-none">
+            圣水<br>
+            <span class="dynamic-text font-thin block mt-2 text-4xl md:text-6xl">SHENGSHUI</span>
+        </h1>
+
+        <p id="hero-desc" class="text-lg md:text-2xl text-gray-200 max-w-2xl font-light italic mb-16 transition-all duration-1000 h-20 flex items-center justify-center">
+            在这里，重新定义你对“解渴”的想象。
+        </p>
+
+        <div class="flex flex-col md:flex-row space-y-5 md:space-y-0 md:space-x-8">
+            <a href="#shop" class="btn-liquid px-14 py-5 rounded-full text-lg font-bold tracking-widest">
+                即刻润泽感官
+            </a>
+        </div>
+
+    </main>
+
+    <footer class="absolute bottom-8 w-full text-center text-xs text-white/40 tracking-widest uppercase z-20">
+        Premium Water Selections & Advanced Hydration Technology Worldwide.
+    </footer>
+
+    <script>
+        // --- 核心逻辑：三种模式切换（沙漠、晨露、冰川） ---
+
+        const body = document.getElementById('main-body');
+        const subHeadline = document.getElementById('sub-headline');
+        const heroDesc = document.getElementById('hero-desc');
+
+        // 定义三种模式的文案
+        const content = {
+            desert: {
+                sub: "· 感受生命的极度渴望 ·",
+                desc: "当世界干涸，唯有一滴纯净，值得你不远万里。"
+            },
+            dew: {
+                sub: "· 沉浸自然的极致滋养 ·",
+                desc: "源自晨曦微露的刹那，让每一个细胞重新呼吸。"
+            },
+            glacier: {
+                sub: "· 体验极地的纯净力量 ·",
+                desc: "来自冰川深处的馈赠，历经千年淬炼的极致纯净。"
+            }
+        };
+
+        let currentMode = 0; // 0=沙漠, 1=晨露, 2=冰川
+        const modes = ['desert', 'dew', 'glacier'];
+
+        function toggleMode() {
+            // 1. 移除所有模式类
+            body.classList.remove('dew-mode', 'glacier-mode');
+            
+            // 2. 计算下一个模式
+            currentMode = (currentMode + 1) % 3;
+            const nextMode = modes[currentMode];
+            
+            // 3. 添加当前模式类
+            if (nextMode === 'dew') {
+                body.classList.add('dew-mode');
+            } else if (nextMode === 'glacier') {
+                body.classList.add('glacier-mode');
+            }
+
+            // 4. 文案淡出
+            subHeadline.style.opacity = 0;
+            heroDesc.style.opacity = 0;
+
+            // 5. 文案内容切换并淡入 (等待CSS过渡完成一半时进行)
+            setTimeout(() => {
+                subHeadline.innerText = content[nextMode].sub;
+                heroDesc.innerText = content[nextMode].desc;
+                subHeadline.style.opacity = 1;
+                heroDesc.style.opacity = 1;
+            }, 750); // 对应 CSS transition 1.5s 的一半时间
+        }
+
+        // 设置定时切换，例如每 7 秒切换一次场景
+        // 首次延迟执行
+        setTimeout(() => {
+            toggleMode();
+            setInterval(toggleMode, 7000); 
+        }, 3000);
+
+    </script>
+</body>
+</html>

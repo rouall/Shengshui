@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SHENGSHUI | 产品</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="./favicon.png">
+  <style>
+    body { font-family: 'Noto Sans SC', sans-serif; background:#050607; }
+    .hero-title { font-family:'Cinzel', serif; letter-spacing: 0.18em; }
+    .lux-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 40px 120px rgba(0,0,0,0.55);
+    }
+    .lux-card:hover { border-color: rgba(255,255,255,0.18); }
+    .img-shell {
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0));
+    }
+    .subtle-grid {
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.05), transparent 42%),
+        radial-gradient(circle at 80% 10%, rgba(0, 210, 255, 0.06), transparent 40%),
+        radial-gradient(circle at 60% 80%, rgba(255, 189, 89, 0.05), transparent 48%);
+    }
+    .hairline { border-top: 1px solid rgba(255,255,255,0.06); }
+  </style>
+</head>
+<body class="min-h-screen text-white">
+  <div class="fixed inset-0 -z-10 subtle-grid"></div>
+
+  <header class="sticky top-0 z-30">
+    <div class="px-6 md:px-10 py-6 flex items-center justify-between">
+      <a href="./index.html" class="hero-title text-sm md:text-base tracking-[0.35em] text-white/90 hover:text-white transition">SHENGSHUI</a>
+      <div class="text-[11px] tracking-[0.35em] uppercase text-white/50 hidden md:block">Discover The Value In Every Drop</div>
+      <a href="./index.html" class="text-xs tracking-[0.25em] text-white/60 hover:text-white transition">返回首页</a>
+    </div>
+    <div class="hairline"></div>
+  </header>
+
+  <main class="px-6 md:px-10 py-14 md:py-16 max-w-7xl mx-auto">
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-10">
+      <div>
+        <div class="text-[11px] tracking-[0.55em] uppercase text-white/55 mb-4">Products</div>
+        <h1 class="hero-title text-3xl md:text-5xl leading-tight">发现每一滴的价值</h1>
+        <p class="mt-4 text-white/60 max-w-2xl">基于 <span class="text-white/80">products.xlsx</span> 自动生成的产品陈列。点击任意产品，将跳转至该行提供的链接。</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="reload" class="px-5 py-3 rounded-full text-xs tracking-[0.25em] uppercase border border-white/15 hover:border-white/30 hover:text-white transition">重新加载</button>
+      </div>
+    </div>
+
+    <section>
+      <div id="status" class="text-sm text-white/60"></div>
+      <div id="grid" class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </section>
+  </main>
+
+  <footer class="px-6 md:px-10 py-10 text-center text-xs tracking-widest text-white/35">
+    Copyright ©2025 Shengshui All Rights Reserved.
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    const statusEl = document.getElementById('status');
+    const gridEl = document.getElementById('grid');
+    const reloadBtn = document.getElementById('reload');
+
+    function normKey(k) {
+      return String(k || '').trim().toLowerCase();
+    }
+
+    function pickField(row, candidates) {
+      for (const c of candidates) {
+        if (row[c] != null && String(row[c]).trim() !== '') return row[c];
+      }
+      return '';
+    }
+
+    function toMoney(v) {
+      const s = String(v ?? '').trim();
+      if (!s) return '';
+      // keep original if already contains currency
+      if (/[$¥￥€£]/.test(s)) return s;
+      // numeric
+      const n = Number(String(s).replace(/,/g,''));
+      if (!Number.isFinite(n)) return s;
+      return `¥${n.toLocaleString('zh-CN')}`;
+    }
+
+    function safeUrl(url) {
+      const u = String(url || '').trim();
+      if (!u) return '';
+      // allow http(s) and relative
+      if (/^(https?:\/\/)/i.test(u) || u.startsWith('./') || u.startsWith('/') ) return u;
+      // if looks like domain, prefix https
+      if (/^[\w.-]+\.[a-z]{2,}/i.test(u)) return 'https://' + u;
+      return u;
+    }
+
+    function render(items) {
+      gridEl.innerHTML = '';
+      const shown = items.slice(0, 9);
+
+      if (!shown.length) {
+        statusEl.textContent = '未读取到可展示的产品数据。请检查 products.xlsx 是否存在且包含数据行。';
+        return;
+      }
+
+      statusEl.textContent = `已加载 ${items.length} 条数据，展示前 ${shown.length} 条。`;
+
+      for (const item of shown) {
+        const a = document.createElement('a');
+        a.href = item.url || '#';
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.className = 'lux-card group rounded-3xl overflow-hidden transition duration-500 hover:-translate-y-1';
+
+        const img = item.image
+          ? `<img src="${item.image}" alt="${(item.title || '').replace(/\"/g,'')}
+" class="w-full h-full object-cover opacity-95 group-hover:opacity-100 transition duration-700" loading="lazy" />`
+          : `<div class="w-full h-full flex items-center justify-center text-white/35 text-xs tracking-[0.25em] uppercase">No Image</div>`;
+
+        a.innerHTML = `
+          <div class="relative aspect-[4/3] img-shell">
+            <div class="absolute inset-0">${img}</div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent"></div>
+          </div>
+          <div class="p-7">
+            <div class="text-[11px] tracking-[0.45em] uppercase text-white/45">Collection</div>
+            <div class="mt-3 text-xl tracking-wide text-white/95">${item.title || 'Untitled'}</div>
+            ${item.desc ? `<div class="mt-3 text-sm text-white/55 leading-relaxed line-clamp-2">${item.desc}</div>` : `<div class="mt-3 text-sm text-white/30">&nbsp;</div>`}
+            <div class="mt-6 flex items-center justify-between">
+              <div class="text-sm tracking-[0.25em] text-white/70">${item.price || ''}</div>
+              <div class="text-[11px] tracking-[0.35em] uppercase text-white/55 group-hover:text-white/85 transition">View</div>
+            </div>
+          </div>
+        `;
+
+        if (!item.url) {
+          a.addEventListener('click', (e) => {
+            e.preventDefault();
+          });
+          a.style.cursor = 'default';
+        }
+
+        gridEl.appendChild(a);
+      }
+    }
+
+    function parseAndRender(buf) {
+      const wb = XLSX.read(buf, { type: 'array' });
+      const sheetName = wb.SheetNames[0];
+      const ws = wb.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+      const items = rows.map((r) => {
+        const title = String(r.name ?? '').trim();
+        const image = String(r.image ?? '').trim();
+        const desc = String(r.desc ?? '').trim();
+        const urlRaw = r.url ?? '';
+
+        return {
+          title: title,
+          image: safeUrl(image),
+          price: '',
+          url: safeUrl(urlRaw),
+          desc: desc
+        };
+      }).filter(x => x.title || x.image || x.url);
+
+      const missing = [];
+      if (rows.length && !(Object.prototype.hasOwnProperty.call(rows[0], 'name'))) missing.push('name');
+      if (rows.length && !(Object.prototype.hasOwnProperty.call(rows[0], 'image'))) missing.push('image');
+      if (rows.length && !(Object.prototype.hasOwnProperty.call(rows[0], 'desc'))) missing.push('desc');
+      if (rows.length && !(Object.prototype.hasOwnProperty.call(rows[0], 'url'))) missing.push('url');
+
+      if (missing.length) {
+        statusEl.textContent = `已读取 products.xlsx，但表头未匹配：缺少 ${missing.join(', ')}。请确保第一行表头为 name/image/desc/url。`;
+      }
+
+      render(items);
+    }
+
+    async function loadXlsx() {
+      statusEl.textContent = '正在加载 products.xlsx ...';
+      gridEl.innerHTML = '';
+
+      try {
+        const res = await fetch('./products.xlsx', { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const buf = await res.arrayBuffer();
+        parseAndRender(buf);
+      } catch (err) {
+        const isFile = location.protocol === 'file:';
+        statusEl.textContent = `加载失败：${err?.message || err}。${isFile ? '你当前是 file:// 打开，浏览器会阻止读取本地 xlsx。请用本地静态服务器或部署到 http(s) 后访问（例如 http://localhost:8000/products.html）。' : '请检查 products.xlsx 是否可访问。'}`;
+      }
+    }
+
+    reloadBtn.addEventListener('click', () => loadXlsx());
+
+    loadXlsx();
+  </script>
+</body>
+</html>

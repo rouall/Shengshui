@@ -49,48 +49,93 @@ var _hmt = _hmt || [];
         }
         
         #video-desert {
-            opacity: 1; z-index: 1; filter: contrast(1.3) brightness(0.9) sepia(0.2) saturate(1.2);
+            opacity: 1; z-index: 1;
             background-image: url('resource/images/desert/photo-1451418280345-67a6b4d10bba.avif');
             animation: desert-sway 20s ease-in-out infinite;
         }
         
         #video-dew {
-            opacity: 0; z-index: 2; filter: contrast(1.1) brightness(0.9);
+            opacity: 0; z-index: 2;
             background-image: url('resource/images/dew/photo-1523712999610-f77fbcfc3843.avif');
             animation: dew-shimmer 15s ease-in-out infinite;
         }
         
         #video-ice {
-            opacity: 0; z-index: 3; filter: contrast(1.3) brightness(0.8) saturate(0.8);
+            opacity: 0; z-index: 3;
             background-image: url('resource/images/ice/photo-1459666644539-a9755287d6b0.avif');
             animation: glacier-glow 25s ease-in-out infinite;
         }
 
         #video-water {
-            opacity: 0; z-index: 4; filter: contrast(1.2) brightness(0.85) saturate(1.1);
+            opacity: 0; z-index: 4;
             background-image: url('resource/images/water/photo-1497436072909-60f360e1d4b1.avif');
             animation: water-drift 22s ease-in-out infinite;
         }
+
+        #video-star {
+            opacity: 0; z-index: 5;
+            background-image: url('resource/images/star/photo-1562499332-64827643864f.avif');
+            animation: star-twinkle 30s ease-in-out infinite;
+        }
         
-        /* 背景动画 */
+        /* 背景动画 - 高清晰动态效果 */
         @keyframes desert-sway {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+            0%, 100% { 
+                background-position: 50% 50%; 
+                transform: translate(-50%, -50%) scale(1.15); 
+            }
+            50% { 
+                background-position: 52% 48%; 
+                transform: translate(-50%, -50%) scale(1.18); 
+            }
         }
         
         @keyframes dew-shimmer {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); filter: brightness(0.9); }
-            50% { transform: translate(-50%, -50%) scale(1.05); filter: brightness(1.1); }
+            0%, 100% { 
+                transform: translate(-50%, -50%) scale(1.12); 
+                background-position: 50% 50%;
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.15); 
+                background-position: 48% 52%;
+            }
         }
         
         @keyframes glacier-glow {
-            0%, 100% { filter: contrast(1.3) brightness(0.8) saturate(0.8); }
-            50% { filter: contrast(1.5) brightness(1) saturate(1); }
+            0%, 100% { 
+                transform: translate(-50%, -50%) scale(1.13) rotate(0deg); 
+                background-position: 50% 50%;
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.16) rotate(0.5deg); 
+                background-position: 51% 49%;
+            }
         }
 
         @keyframes water-drift {
-            0%, 100% { background-position: 50% 40%; transform: translate(-50%, -50%) scale(1.08); }
-            50% { background-position: 50% 60%; transform: translate(-50%, -50%) scale(1.12); }
+            0%, 100% { 
+                background-position: 50% 48%; 
+                transform: translate(-50%, -50%) scale(1.14); 
+            }
+            50% { 
+                background-position: 50% 52%; 
+                transform: translate(-50%, -50%) scale(1.17); 
+            }
+        }
+
+        @keyframes star-twinkle {
+            0%, 100% { 
+                transform: translate(-50%, -50%) scale(1.16); 
+                background-position: 50% 50%;
+            }
+            33% { 
+                transform: translate(-50%, -50%) scale(1.18); 
+                background-position: 49% 51%;
+            }
+            66% { 
+                transform: translate(-50%, -50%) scale(1.14); 
+                background-position: 51% 49%;
+            }
         }
 
         /* 当激活晨露模式时 */
@@ -110,21 +155,32 @@ var _hmt = _hmt || [];
         body.water-mode #video-dew { opacity: 0; }
         body.water-mode #video-ice { opacity: 0; }
         body.water-mode #video-water { opacity: 1; }
+        body.water-mode #video-star { opacity: 0; }
 
-        /* 动态遮罩层：沙漠时偏暖，晨露时偏冷，冰川时偏蓝 */
+        /* 当激活星空模式时 */
+        body.star-mode #video-desert { opacity: 0; }
+        body.star-mode #video-dew { opacity: 0; }
+        body.star-mode #video-ice { opacity: 0; }
+        body.star-mode #video-water { opacity: 0; }
+        body.star-mode #video-star { opacity: 1; }
+
+        /* 动态遮罩层：轻微色彩增强，保持图片清晰 */
         .overlay-dynamic {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-            background: radial-gradient(circleAtCenter, rgba(255, 166, 0, 0.2) 0%, rgba(0,0,0,0.6) 100%);
+            background: radial-gradient(circle at 50% 50%, rgba(255, 166, 0, 0.08) 0%, rgba(0,0,0,0.45) 100%);
             transition: background 1.5s ease;
         }
         body.dew-mode .overlay-dynamic {
-            background: radial-gradient(circleAtCenter, rgba(0, 210, 255, 0.2) 0%, rgba(0,0,0,0.5) 100%);
+            background: radial-gradient(circle at 50% 50%, rgba(0, 210, 255, 0.08) 0%, rgba(0,0,0,0.4) 100%);
         }
         body.ice-mode .overlay-dynamic {
-            background: radial-gradient(circleAtCenter, rgba(135, 206, 250, 0.2) 0%, rgba(0,0,0,0.7) 100%);
+            background: radial-gradient(circle at 50% 50%, rgba(135, 206, 250, 0.08) 0%, rgba(0,0,0,0.48) 100%);
         }
         body.water-mode .overlay-dynamic {
-            background: radial-gradient(circleAtCenter, rgba(0, 255, 200, 0.18) 0%, rgba(0,0,0,0.72) 100%);
+            background: radial-gradient(circle at 50% 50%, rgba(0, 255, 200, 0.08) 0%, rgba(0,0,0,0.42) 100%);
+        }
+        body.star-mode .overlay-dynamic {
+            background: radial-gradient(circle at 50% 50%, rgba(138, 43, 226, 0.12) 0%, rgba(0,0,0,0.5) 100%);
         }
 
         #fx-canvas {
@@ -143,7 +199,7 @@ var _hmt = _hmt || [];
         .glass-nav {
             background: transparent;
             backdrop-filter: none;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: none;
         }
         .hero-title {
             font-family: 'Cinzel', serif; /* 使用更具神圣感的字体 */
@@ -156,157 +212,49 @@ var _hmt = _hmt || [];
         body.dew-mode .dynamic-text { color: #00d2ff; } /* 晨露蓝 */
         body.ice-mode .dynamic-text { color: #87cefa; } /* 冰川浅蓝 */
         body.water-mode .dynamic-text { color: #00ffd5; } /* 水域奢华薄荷青 */
+        body.star-mode .dynamic-text { color: #b19cd9; } /* 星空奢华紫 */
 
-        /* --- 沙漠风沙效果 --- */
+        /* --- 沙漠风沙效果 - 已禁用，保持图片清晰 --- */
         .sandstorm {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             pointer-events: none;
             opacity: 0;
-            transition: opacity 1.5s ease;
-            background: linear-gradient(90deg, transparent, rgba(210, 180, 140, 0.05), transparent),
-                        linear-gradient(90deg, transparent 20%, rgba(160, 82, 45, 0.05), transparent 70%);
-            background-size: 200% 100%;
-            animation: sandstorm-slow 18s ease-in-out infinite;
-        }
-        /* 快速风沙层 - 模拟近地面强风 */
-        .sandstorm::before {
-            content: '';
-            position: absolute; top: 0; left: 0; width: 200%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(244, 214, 172, 0.25), transparent),
-                        linear-gradient(90deg, transparent 10%, rgba(222, 184, 135, 0.2), transparent 80%),
-                        linear-gradient(90deg, transparent 30%, rgba(160, 82, 45, 0.15), transparent 60%);
-            animation: sandstorm-fast 6s linear infinite;
-        }
-        @keyframes sandstorm-fast {
-            0% { transform: translateX(-100%) translateY(0) rotateZ(0deg); opacity: 0.7; filter: blur(1px); }
-            25% { opacity: 0.9; filter: blur(2px); }
-            50% { opacity: 1; transform: translateX(-50%) translateY(-5px) rotateZ(0.5deg); filter: blur(3px); }
-            75% { opacity: 0.9; filter: blur(2px); }
-            100% { transform: translateX(0%) translateY(-10px) rotateZ(0deg); opacity: 0.7; filter: blur(1px); }
-        }
-        /* 中速风沙层 - 模拟中层风 */
-        .sandstorm::after {
-            content: '';
-            position: absolute; top: 0; left: 0; width: 300%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(189, 155, 109, 0.2), transparent),
-                        linear-gradient(90deg, transparent 20%, rgba(160, 82, 45, 0.15), transparent 70%),
-                        linear-gradient(90deg, transparent 40%, rgba(210, 180, 140, 0.1), transparent 90%);
-            animation: sandstorm-medium 10s linear infinite;
-        }
-        @keyframes sandstorm-medium {
-            0% { transform: translateX(-150%) translateY(5px) rotateZ(0deg); opacity: 0.6; filter: blur(2px); }
-            25% { opacity: 0.8; filter: blur(3px); }
-            50% { opacity: 0.9; transform: translateX(-75%) translateY(0px) rotateZ(-0.3deg); filter: blur(4px); }
-            75% { opacity: 0.8; filter: blur(3px); }
-            100% { transform: translateX(0%) translateY(-5px) rotateZ(0deg); opacity: 0.6; filter: blur(2px); }
-        }
-        /* 慢速风沙层 - 模拟高空沙尘 */
-        @keyframes sandstorm-slow {
-            0% { background-position: -200% 0; transform: translateY(5px) rotateZ(0deg); opacity: 0.4; filter: blur(3px); }
-            25% { opacity: 0.6; filter: blur(4px); }
-            50% { opacity: 0.8; background-position: -100% 0; transform: translateY(0px) rotateZ(0.2deg); filter: blur(5px); }
-            75% { opacity: 0.6; filter: blur(4px); }
-            100% { background-position: 0% 0; transform: translateY(-5px) rotateZ(0deg); opacity: 0.4; filter: blur(3px); }
-        }
-        /* 非沙漠模式时隐藏风沙效果 */
-        body:not(.dew-mode):not(.ice-mode):not(.water-mode) .sandstorm {
-            opacity: 1;
+            display: none;
         }
 
-        /* --- 晨露闪烁效果 --- */
+        /* --- 晨露闪烁效果 - 已禁用，保持图片清晰 --- */
         .dew-effect {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             pointer-events: none;
             opacity: 0;
-            transition: opacity 1.5s ease;
-        }
-        .dew-effect::before {
-            content: '';
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.3) 0%, transparent 20%),
-                        radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.3) 0%, transparent 20%),
-                        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 30%),
-                        radial-gradient(circle at 10% 80%, rgba(255, 255, 255, 0.25) 0%, transparent 15%),
-                        radial-gradient(circle at 90% 20%, rgba(255, 255, 255, 0.25) 0%, transparent 15%);
-            animation: dew-flicker 5s ease-in-out infinite;
-        }
-        .dew-effect::after {
-            content: '';
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 30% 40%, rgba(173, 216, 230, 0.2) 0%, transparent 25%),
-                        radial-gradient(circle at 70% 60%, rgba(173, 216, 230, 0.2) 0%, transparent 25%),
-                        radial-gradient(circle at 40% 70%, rgba(173, 216, 230, 0.15) 0%, transparent 20%),
-                        radial-gradient(circle at 60% 30%, rgba(173, 216, 230, 0.15) 0%, transparent 20%);
-            animation: dew-flicker-slow 7s ease-in-out infinite;
-        }
-        @keyframes dew-flicker {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.05); }
-        }
-        @keyframes dew-flicker-slow {
-            0%, 100% { opacity: 0.2; background-position: 0% 0%; }
-            50% { opacity: 0.5; background-position: 10% 10%; }
-        }
-        /* 晨露模式时显示露珠效果 */
-        body.dew-mode .dew-effect {
-            opacity: 1;
+            display: none;
         }
 
-        /* --- 冰川冰晶效果 --- */
+        /* --- 冰川冰晶效果 - 已禁用，保持图片清晰 --- */
         .glacier-effect {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             pointer-events: none;
             opacity: 0;
-            transition: opacity 1.5s ease;
-        }
-        .glacier-effect::before {
-            content: '';
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.4) 0%, transparent 10%),
-                        radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.4) 0%, transparent 15%),
-                        radial-gradient(circle at 40% 60%, rgba(255, 255, 255, 0.3) 0%, transparent 20%),
-                        radial-gradient(circle at 20% 70%, rgba(255, 255, 255, 0.35) 0%, transparent 12%),
-                        radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.35) 0%, transparent 12%),
-                        radial-gradient(circle at 10% 40%, rgba(255, 255, 255, 0.3) 0%, transparent 10%),
-                        radial-gradient(circle at 90% 60%, rgba(255, 255, 255, 0.3) 0%, transparent 10%);
-            animation: glacier-sparkle 3s ease-in-out infinite;
-        }
-        .glacier-effect::after {
-            content: '';
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, rgba(173, 216, 230, 0.25) 0%, transparent 25%),
-                        radial-gradient(circle at 30% 80%, rgba(173, 216, 230, 0.2) 0%, transparent 20%),
-                        radial-gradient(circle at 70% 20%, rgba(173, 216, 230, 0.2) 0%, transparent 20%),
-                        radial-gradient(circle at 60% 70%, rgba(173, 216, 230, 0.15) 0%, transparent 15%),
-                        radial-gradient(circle at 40% 30%, rgba(173, 216, 230, 0.15) 0%, transparent 15%);
-            animation: glacier-sparkle-slow 5s ease-in-out infinite;
-        }
-        @keyframes glacier-sparkle {
-            0%, 100% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.1); }
-        }
-        @keyframes glacier-sparkle-slow {
-            0%, 100% { opacity: 0.3; transform: scale(1) rotate(0deg); }
-            50% { opacity: 0.8; transform: scale(1.05) rotate(5deg); }
-        }
-        /* 冰川模式时显示冰晶效果 */
-        body.ice-mode .glacier-effect {
-            opacity: 1;
+            display: none;
         }
 
-        /* 水域模式可额外提升整体透亮感 */
-        body.water-mode .dew-effect { opacity: 0.35; }
-        body.water-mode .glacier-effect { opacity: 0.15; }
+        /* --- 星空流星效果 - 轻微星云，保持图片清晰 --- */
+        .star-effect {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            pointer-events: none;
+            opacity: 0;
+            display: none;
+        }
 
         /* --- 液态感应按钮 --- */
         .btn-liquid {
             position: relative;
-            background: transparent;
+            background: rgba(0, 0, 0, 0.3);
             color: white;
-            border: 2px solid rgba(255,255,255,0.3);
+            border: 2px solid rgba(255,255,255,0.4);
             overflow: hidden;
             transition: all 0.5s;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
         }
         .btn-liquid::before {
             content: '';
@@ -323,7 +271,8 @@ var _hmt = _hmt || [];
         body.dew-mode .btn-liquid:hover { --theme-color: #00d2ff; }
         body.ice-mode .btn-liquid:hover { --theme-color: #87cefa; }
         body.water-mode .btn-liquid:hover { --theme-color: #00ffd5; }
-        body:not(.dew-mode):not(.ice-mode):not(.water-mode) .btn-liquid:hover { --theme-color: #ffbd59; }
+        body.star-mode .btn-liquid:hover { --theme-color: #b19cd9; }
+        body:not(.dew-mode):not(.ice-mode):not(.water-mode):not(.star-mode) .btn-liquid:hover { --theme-color: #ffbd59; }
 
         .nav-panel-backdrop {
             position: fixed;
@@ -402,12 +351,14 @@ var _hmt = _hmt || [];
         <div id="video-dew" class="bg-video"></div>
         <div id="video-ice" class="bg-video"></div>
         <div id="video-water" class="bg-video"></div>
+        <div id="video-star" class="bg-video"></div>
     </div>
     <div class="overlay-dynamic"></div>
     <canvas id="fx-canvas"></canvas>
     <div class="sandstorm"></div>
     <div class="dew-effect"></div>
     <div class="glacier-effect"></div>
+    <div class="star-effect"></div>
 
 
     <nav class="glass-nav flex justify-between items-center px-8 py-6 fixed w-full z-50">
@@ -685,6 +636,8 @@ var _hmt = _hmt || [];
                     this.drawIce(dt);
                 } else if (this.mode === 'water') {
                     this.drawWater(dt);
+                } else if (this.mode === 'star') {
+                    this.drawStar(dt);
                 }
 
                 requestAnimationFrame((n) => this.frame(n));
@@ -855,6 +808,116 @@ var _hmt = _hmt || [];
 
                 ctx.restore();
             }
+
+            drawStar(dt) {
+                const ctx = this.ctx;
+                ctx.save();
+                
+                // 绘制流星效果
+                ctx.globalCompositeOperation = 'lighter';
+                const meteorCount = Math.min(8, Math.floor(this.particles.length * 0.15));
+                for (let i = 0; i < meteorCount; i++) {
+                    const p = this.particles[i];
+                    const speed = 180 + 120 * p.tw;
+                    const angle = Math.PI / 4 + Math.sin(this.t * 0.3 + p.ph) * 0.2;
+                    p.vx = Math.cos(angle) * speed;
+                    p.vy = Math.sin(angle) * speed;
+                    p.x += p.vx * dt;
+                    p.y += p.vy * dt;
+
+                    // 流星出界后重置
+                    if (p.x > this.w + 100 || p.y > this.h + 100) {
+                        p.x = this.rand(-50, this.w * 0.3);
+                        p.y = this.rand(-50, this.h * 0.3);
+                    }
+
+                    // 绘制流星尾迹
+                    const len = 40 + 80 * p.tw;
+                    const x2 = p.x - Math.cos(angle) * len;
+                    const y2 = p.y - Math.sin(angle) * len;
+                    
+                    const grad = ctx.createLinearGradient(p.x, p.y, x2, y2);
+                    grad.addColorStop(0, `rgba(255, 255, 255, ${p.a * 0.9})`);
+                    grad.addColorStop(0.3, `rgba(200, 180, 255, ${p.a * 0.6})`);
+                    grad.addColorStop(0.7, `rgba(138, 43, 226, ${p.a * 0.3})`);
+                    grad.addColorStop(1, 'rgba(138, 43, 226, 0)');
+                    
+                    ctx.strokeStyle = grad;
+                    ctx.lineWidth = 1.5 + 2 * p.tw;
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(x2, y2);
+                    ctx.stroke();
+                    
+                    // 流星头部光晕
+                    const headGlow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 4 + 6 * p.tw);
+                    headGlow.addColorStop(0, `rgba(255, 255, 255, ${p.a})`);
+                    headGlow.addColorStop(0.5, `rgba(200, 180, 255, ${p.a * 0.5})`);
+                    headGlow.addColorStop(1, 'rgba(138, 43, 226, 0)');
+                    ctx.fillStyle = headGlow;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 4 + 6 * p.tw, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // 绘制闪烁星星
+                ctx.globalCompositeOperation = 'screen';
+                for (let i = meteorCount; i < this.particles.length; i++) {
+                    const p = this.particles[i];
+                    
+                    // 星星缓慢漂移
+                    p.vx = 3 * Math.sin(this.t * 0.4 + p.ph);
+                    p.vy = 2 * Math.cos(this.t * 0.35 + p.ph);
+                    p.x += p.vx * dt;
+                    p.y += p.vy * dt;
+                    
+                    // 边界循环
+                    if (p.x < -20) p.x = this.w + 20;
+                    if (p.x > this.w + 20) p.x = -20;
+                    if (p.y < -20) p.y = this.h + 20;
+                    if (p.y > this.h + 20) p.y = -20;
+
+                    // 闪烁效果
+                    const twinkle = 0.3 + 0.7 * Math.abs(Math.sin(this.t * (1.5 + p.tw) + p.ph));
+                    const r = (0.8 + 1.4 * p.tw) * twinkle;
+                    
+                    // 星星光晕
+                    const starGlow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 3);
+                    starGlow.addColorStop(0, `rgba(255, 255, 255, ${p.a * twinkle})`);
+                    starGlow.addColorStop(0.4, `rgba(177, 156, 217, ${p.a * twinkle * 0.6})`);
+                    starGlow.addColorStop(1, 'rgba(138, 43, 226, 0)');
+                    ctx.fillStyle = starGlow;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, r * 3, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // 星星核心
+                    ctx.fillStyle = `rgba(255, 255, 255, ${p.a * twinkle * 1.2})`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // 绘制星云光晕
+                ctx.globalCompositeOperation = 'screen';
+                for (const b of this.bokeh) {
+                    b.x += 4 * Math.sin(this.t * 0.15 + b.ph) * dt;
+                    b.y += 3 * Math.cos(this.t * 0.12 + b.ph) * dt;
+                    
+                    const pulse = 0.7 + 0.3 * Math.sin(this.t * 0.8 + b.ph);
+                    const r = b.r * 0.6 * pulse;
+                    const g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, r);
+                    g.addColorStop(0, `rgba(147, 112, 219, ${b.a * 0.4 * pulse})`);
+                    g.addColorStop(0.4, `rgba(138, 43, 226, ${b.a * 0.25 * pulse})`);
+                    g.addColorStop(1, 'rgba(75, 0, 130, 0)');
+                    ctx.fillStyle = g;
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, r, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.restore();
+            }
         }
 
         const fx = new FXEngine(fxCanvas);
@@ -863,7 +926,8 @@ var _hmt = _hmt || [];
             desert: document.getElementById('video-desert'),
             dew: document.getElementById('video-dew'),
             ice: document.getElementById('video-ice'),
-            water: document.getElementById('video-water')
+            water: document.getElementById('video-water'),
+            star: document.getElementById('video-star')
         };
 
         const imagePool = {
@@ -908,6 +972,16 @@ var _hmt = _hmt || [];
                 'photo-1615529328331-f8917597711f.avif',
                 'photo-1657549918210-5390583fb598.avif',
                 'photo-1657549918210-659580c024d7.avif'
+            ],
+            star: [
+                'daniel-gomez-ePtTfotxsx4-unsplash.jpg',
+                'photo-1562499332-64827643864f.avif',
+                'photo-1697377389156-5624773d1a21.avif',
+                'photo-1764877805075-c0cdcb2da65c.avif',
+                'photo-1764970692776-ce5fb30a7509.avif',
+                'photo-1765407990623-7c0fcbae38a7.avif',
+                'photo-1765754431926-964ed45a41e9.avif',
+                'thibault-henry-9wGI-g3rA-E-unsplash.jpg'
             ]
         };
 
@@ -915,7 +989,8 @@ var _hmt = _hmt || [];
             desert: null,
             dew: null,
             ice: null,
-            water: null
+            water: null,
+            star: null
         };
 
         function pickRandom(mode) {
@@ -961,14 +1036,18 @@ var _hmt = _hmt || [];
             water: {
                 sub: "· 源自自然的圣水 ·",
                 desc: "以矿物与时间雕刻的层次感，入口即是高级的宁静。"
+            },
+            star: {
+                sub: "· 汲取星辰的永恒之水 ·",
+                desc: "如同夜空中的璀璨星河，每一滴都承载着宇宙的深邃与神秘。"
             }
         };
 
-        let currentMode = 0; // 0=沙漠, 1=晨露, 2=冰川, 3=水域
-        const modes = ['desert', 'dew', 'ice', 'water'];
+        let currentMode = 0; // 0=沙漠, 1=晨露, 2=冰川, 3=水域, 4=星空
+        const modes = ['desert', 'dew', 'ice', 'water', 'star'];
 
         function applyModeClass(nextMode) {
-            body.classList.remove('dew-mode', 'ice-mode', 'water-mode');
+            body.classList.remove('dew-mode', 'ice-mode', 'water-mode', 'star-mode');
 
             if (nextMode === 'dew') {
                 body.classList.add('dew-mode');
@@ -976,6 +1055,8 @@ var _hmt = _hmt || [];
                 body.classList.add('ice-mode');
             } else if (nextMode === 'water') {
                 body.classList.add('water-mode');
+            } else if (nextMode === 'star') {
+                body.classList.add('star-mode');
             }
         }
 
@@ -984,7 +1065,8 @@ var _hmt = _hmt || [];
                 desert: '#ffbd59',
                 dew: '#00d2ff',
                 ice: '#87cefa',
-                water: '#00ffd5'
+                water: '#00ffd5',
+                star: '#b19cd9'
             };
             document.documentElement.style.setProperty('--theme-color', theme[nextMode] || '#00d2ff');
         }
@@ -1007,7 +1089,7 @@ var _hmt = _hmt || [];
         }
 
         function toggleMode() {
-            currentMode = (currentMode + 1) % 4;
+            currentMode = (currentMode + 1) % 5;
             const nextMode = modes[currentMode];
             enterMode(nextMode);
         }
@@ -1020,6 +1102,7 @@ var _hmt = _hmt || [];
         setRandomBackground('dew');
         setRandomBackground('ice');
         setRandomBackground('water');
+        setRandomBackground('star');
 
         // 设置定时切换，例如每 7 秒切换一次场景（首次延迟执行）
         setTimeout(() => {

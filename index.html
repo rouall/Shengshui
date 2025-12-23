@@ -477,6 +477,31 @@ var _hmt = _hmt || [];
             }
         }
 
+        /* --- 水波纹效果 --- */
+        .water-ripple-effect {
+            position: fixed;
+            border-radius: 50%;
+            border: 1px solid rgba(180, 220, 255, 0.6);
+            pointer-events: none;
+            z-index: 49;
+            animation: rippleSpread 1.5s ease-out forwards;
+        }
+
+        @keyframes rippleSpread {
+            0% {
+                width: 4px;
+                height: 4px;
+                opacity: 0.8;
+                transform: translate(-50%, -50%);
+            }
+            100% {
+                width: 60px;
+                height: 60px;
+                opacity: 0;
+                transform: translate(-50%, -50%);
+            }
+        }
+
         /* --- 按钮水波纹 --- */
         .btn-liquid {
             position: relative;
@@ -700,7 +725,7 @@ var _hmt = _hmt || [];
             ctx.clearRect(0, 0, lightningCanvas.width, lightningCanvas.height);
             
             // 移除所有天气元素
-            document.querySelectorAll('.screen-flash, .rain-drop').forEach(el => el.remove());
+            document.querySelectorAll('.screen-flash, .rain-drop, .water-ripple-effect').forEach(el => el.remove());
             
             // 停止所有音频
             stopAllAudio();
@@ -712,6 +737,12 @@ var _hmt = _hmt || [];
         document.addEventListener('click', (e) => {
             // 避免点击导航等元素
             if (e.target.closest('nav') || e.target.closest('a') || e.target.closest('button')) {
+                return;
+            }
+
+            // 只在沙漠模式（currentMode === 0）时触发雷雨效果
+            if (currentMode !== 0) {
+                console.log('当前不是沙漠模式，雷雨效果已禁用');
                 return;
             }
 
@@ -928,12 +959,35 @@ var _hmt = _hmt || [];
         function createRainDrop() {
             const drop = document.createElement('div');
             drop.className = 'rain-drop';
-            drop.style.left = Math.random() * window.innerWidth + 'px';
+            const x = Math.random() * window.innerWidth;
+            drop.style.left = x + 'px';
             drop.style.animationDuration = (0.5 + Math.random() * 0.3) + 's';
             drop.style.animationDelay = (Math.random() * 0.2) + 's';
             document.body.appendChild(drop);
             
+            // 雨滴落地后创建水波纹（性能优化：只有15%的雨滴产生波纹）
+            if (Math.random() < 0.15) {
+                const duration = parseFloat(drop.style.animationDuration) * 1000;
+                setTimeout(() => {
+                    // 水波纹只在页面下1/3区域出现
+                    const rippleX = Math.random() * window.innerWidth;
+                    const rippleY = window.innerHeight * (0.67 + Math.random() * 0.33); // 只在下1/3区域
+                    createWaterRipple(rippleX, rippleY);
+                }, duration * (0.8 + Math.random() * 0.2)); // 接近落地时间
+            }
+            
             setTimeout(() => drop.remove(), 1000);
+        }
+
+        // 创建水波纹效果
+        function createWaterRipple(x, y) {
+            const ripple = document.createElement('div');
+            ripple.className = 'water-ripple-effect';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            document.body.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 1500);
         }
 
         // ========================================
@@ -1643,6 +1697,7 @@ var _hmt = _hmt || [];
 
         let currentMode = 0; // 0=沙漠, 1=晨露, 2=冰川, 3=水域, 4=星空
         const modes = ['desert', 'dew', 'ice', 'water', 'star'];
+        let modeIntervalId = null;
 
         function applyModeClass(nextMode) {
             body.classList.remove('dew-mode', 'ice-mode', 'water-mode', 'star-mode');
@@ -1690,6 +1745,15 @@ var _hmt = _hmt || [];
             currentMode = (currentMode + 1) % 5;
             const nextMode = modes[currentMode];
             enterMode(nextMode);
+            
+            // 清除旧的定时器
+            if (modeIntervalId) {
+                clearTimeout(modeIntervalId);
+            }
+            
+            // 根据模式设置不同的切换时间
+            const delay = (currentMode === 0) ? 15000 : 7000; // 沙漠模式显示15秒，其他模式7秒
+            modeIntervalId = setTimeout(toggleMode, delay);
         }
 
         // 初始化：先落在沙漠，并随机一张沙漠图
@@ -1702,11 +1766,10 @@ var _hmt = _hmt || [];
         setRandomBackground('water');
         setRandomBackground('star');
 
-        // 设置定时切换，例如每 7 秒切换一次场景（首次延迟执行）
+        // 设置定时切换，沙漠模式显示15秒
         setTimeout(() => {
             toggleMode();
-            setInterval(toggleMode, 7000);
-        }, 3000);
+        }, 15000);
 
     </script>
 </body>

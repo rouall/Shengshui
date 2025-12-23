@@ -341,6 +341,162 @@ var _hmt = _hmt || [];
             background: rgba(255,255,255,0.04);
         }
 
+        /* --- 视差容器 --- */
+        .parallax-layer {
+            transition: transform 0.1s ease-out;
+        }
+
+        /* --- 文字动画 --- */
+        .hero-title .char {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(30px);
+            filter: blur(10px);
+            animation: charFadeIn 0.8s ease forwards;
+        }
+
+        @keyframes charFadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        /* --- 闪电效果 --- */
+        .lightning-strike {
+            position: fixed;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .lightning-bolt {
+            position: absolute;
+            background: linear-gradient(to bottom, 
+                rgba(255, 255, 255, 1) 0%,
+                rgba(200, 220, 255, 0.95) 20%,
+                rgba(255, 255, 255, 0.9) 40%,
+                rgba(180, 210, 255, 0.8) 60%,
+                rgba(150, 200, 255, 0.6) 80%,
+                transparent 100%
+            );
+            box-shadow: 
+                0 0 8px rgba(255, 255, 255, 1),
+                0 0 16px rgba(200, 220, 255, 0.9),
+                0 0 24px rgba(150, 200, 255, 0.7),
+                0 0 32px rgba(100, 180, 255, 0.5);
+            animation: boltFlash 0.4s ease-out;
+            transform-origin: top center;
+            filter: brightness(1.5);
+        }
+
+        @keyframes boltFlash {
+            0% { opacity: 0; transform: scaleY(0); }
+            15% { opacity: 1; transform: scaleY(1); }
+            30% { opacity: 0.7; }
+            45% { opacity: 1; }
+            60% { opacity: 0.8; }
+            100% { opacity: 0; transform: scaleY(1); }
+        }
+
+        .lightning-flash {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, 
+                rgba(255, 255, 255, 0.9) 0%,
+                rgba(200, 220, 255, 0.6) 20%,
+                rgba(150, 200, 255, 0.3) 40%,
+                transparent 70%
+            );
+            animation: flashExpand 0.8s ease-out;
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        @keyframes flashExpand {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(2.5);
+                opacity: 0;
+            }
+        }
+
+        .screen-flash {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.4);
+            pointer-events: none;
+            z-index: 98;
+            animation: screenFlash 0.3s ease-out;
+        }
+
+        @keyframes screenFlash {
+            0%, 100% { opacity: 0; }
+            15%, 45% { opacity: 1; }
+            30% { opacity: 0.4; }
+            60% { opacity: 0.6; }
+        }
+
+        /* --- 雨滴效果 --- */
+        .rain-drop {
+            position: fixed;
+            top: -10px;
+            width: 2px;
+            height: 40px;
+            background: linear-gradient(to bottom,
+                transparent 0%,
+                rgba(180, 220, 255, 0.8) 20%,
+                rgba(200, 230, 255, 0.9) 50%,
+                rgba(180, 220, 255, 0.6) 80%,
+                transparent 100%
+            );
+            pointer-events: none;
+            z-index: 50;
+            animation: rainFall linear forwards;
+            opacity: 0.7;
+        }
+
+        @keyframes rainFall {
+            0% {
+                transform: translateY(0);
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+        }
+
+        /* --- 按钮水波纹 --- */
+        .btn-liquid {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(0);
+            animation: rippleEffect 0.8s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes rippleEffect {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
     </style>
 </head>
 <body id="main-body" class="text-white h-screen flex flex-col">
@@ -386,7 +542,7 @@ var _hmt = _hmt || [];
         </p>
 
         <div class="flex flex-col md:flex-row space-y-5 md:space-y-0 md:space-x-8">
-            <a href="./products.html" class="btn-liquid px-14 py-5 rounded-full text-lg font-bold tracking-widest">
+            <a href="./products.html" class="btn-liquid px-14 py-5 rounded-full text-lg font-bold tracking-widest" id="cta-button">
                 即刻润泽感官
             </a>
         </div>
@@ -442,6 +598,349 @@ var _hmt = _hmt || [];
     </footer>
 
     <script>
+        // ========================================
+        // 雷雨天气系统
+        // ========================================
+        let currentWeather = null;
+        let weatherTimeout = null;
+        let currentAudio = null;
+        let lastClickTime = 0;
+        const clickCooldown = 1000;
+
+        // 音频管理
+        const audioFiles = {
+            thunder: new Audio('thunderstorm.mp3'),
+            rain: new Audio('rain.mp3'),
+            wind: new Audio('wind.mp3')
+        };
+
+        // 设置音频循环
+        audioFiles.rain.loop = true;
+        audioFiles.wind.loop = true;
+        audioFiles.thunder.loop = false;
+
+        // 设置音量
+        audioFiles.thunder.volume = 0.6;
+        audioFiles.rain.volume = 0.4;
+        audioFiles.wind.volume = 0.3;
+
+        // 停止并清理音频
+        function stopAudio() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                currentAudio = null;
+            }
+        }
+
+        // 播放音频
+        function playAudio(type) {
+            stopAudio();
+            currentAudio = audioFiles[type];
+            currentAudio.currentTime = 0;
+            currentAudio.play().catch(e => console.log('音频播放失败:', e));
+        }
+
+        // 清理天气效果
+        function clearWeather() {
+            if (weatherTimeout) {
+                clearTimeout(weatherTimeout);
+                weatherTimeout = null;
+            }
+            
+            // 移除所有天气元素
+            document.querySelectorAll('.lightning-strike, .lightning-flash, .screen-flash, .rain-drop').forEach(el => el.remove());
+            
+            // 停止音频
+            stopAudio();
+            
+            currentWeather = null;
+        }
+
+        // 点击触发天气
+        document.addEventListener('click', (e) => {
+            // 避免点击导航等元素
+            if (e.target.closest('nav') || e.target.closest('a') || e.target.closest('button')) {
+                return;
+            }
+
+            const now = Date.now();
+            if (now - lastClickTime < clickCooldown) {
+                return;
+            }
+            lastClickTime = now;
+
+            // 清理旧的天气效果
+            clearWeather();
+
+            // 随机决定是否有风
+            const hasWind = Math.random() > 0.5;
+            
+            if (hasWind) {
+                startWindyThunderstorm(e.clientX, e.clientY);
+            } else {
+                startThunderstorm(e.clientX, e.clientY);
+            }
+        });
+
+        // 开始雷暴（带风）
+        function startWindyThunderstorm(x, y) {
+            currentWeather = 'windy-storm';
+            
+            // 播放风声
+            playAudio('wind');
+            
+            // 1秒后开始打雷
+            weatherTimeout = setTimeout(() => {
+                playAudio('thunder');
+                createThunderSequence(x, y);
+                
+                // 3秒后开始下雨
+                weatherTimeout = setTimeout(() => {
+                    startRain();
+                }, 3000);
+            }, 1000);
+        }
+
+        // 开始雷暴（无风）
+        function startThunderstorm(x, y) {
+            currentWeather = 'storm';
+            
+            // 立即打雷
+            playAudio('thunder');
+            createThunderSequence(x, y);
+            
+            // 3秒后开始下雨
+            weatherTimeout = setTimeout(() => {
+                startRain();
+            }, 3000);
+        }
+
+        // 创建雷电序列
+        function createThunderSequence(x, y) {
+            // 第一次闪电
+            createLightning(x, y);
+            
+            // 0.5秒后第二次
+            setTimeout(() => createLightning(x + (Math.random() - 0.5) * 200, y), 500);
+            
+            // 1.2秒后第三次
+            setTimeout(() => createLightning(x + (Math.random() - 0.5) * 300, y), 1200);
+        }
+
+        // 创建闪电
+        function createLightning(x, y) {
+            // 创建闪电容器
+            const strike = document.createElement('div');
+            strike.className = 'lightning-strike';
+            strike.style.left = x + 'px';
+            strike.style.top = y + 'px';
+            document.body.appendChild(strike);
+
+            // 创建主闪电
+            const mainBolt = createBolt(0, 0, 1, true);
+            strike.appendChild(mainBolt);
+
+            // 创建分支
+            const branches = 2 + Math.floor(Math.random() * 3);
+            for (let i = 0; i < branches; i++) {
+                const branch = createBolt(i, branches, branches, false);
+                strike.appendChild(branch);
+            }
+
+            // 创建闪光圈
+            createFlash(x, y);
+
+            // 创建全屏闪光
+            createScreenFlash();
+
+            // 清理
+            setTimeout(() => strike.remove(), 600);
+        }
+
+        // 创建闪电分支
+        function createBolt(index, total, branches, isMain) {
+            const bolt = document.createElement('div');
+            bolt.className = 'lightning-bolt';
+            
+            if (isMain) {
+                bolt.style.height = (200 + Math.random() * 300) + 'px';
+                bolt.style.width = '4px';
+                bolt.style.left = '0';
+            } else {
+                bolt.style.height = (80 + Math.random() * 150) + 'px';
+                bolt.style.width = (2 + Math.random() * 2) + 'px';
+                const angle = (index - total / 2) * 20 + (Math.random() - 0.5) * 30;
+                bolt.style.transform = `rotate(${angle}deg)`;
+                bolt.style.left = (Math.random() - 0.5) * 40 + 'px';
+                bolt.style.top = (50 + Math.random() * 100) + 'px';
+            }
+            
+            bolt.style.animationDelay = (Math.random() * 0.1) + 's';
+            
+            return bolt;
+        }
+
+        // 创建闪光圈
+        function createFlash(x, y) {
+            const flash = document.createElement('div');
+            flash.className = 'lightning-flash';
+            flash.style.left = x + 'px';
+            flash.style.top = y + 'px';
+            document.body.appendChild(flash);
+            
+            setTimeout(() => flash.remove(), 800);
+        }
+
+        // 创建全屏闪光
+        function createScreenFlash() {
+            const flash = document.createElement('div');
+            flash.className = 'screen-flash';
+            document.body.appendChild(flash);
+            
+            setTimeout(() => flash.remove(), 300);
+        }
+
+        // 开始下雨
+        function startRain() {
+            playAudio('rain');
+            
+            // 创建雨滴
+            const rainInterval = setInterval(() => {
+                if (currentWeather === null) {
+                    clearInterval(rainInterval);
+                    return;
+                }
+                
+                // 每次创建多个雨滴
+                for (let i = 0; i < 5; i++) {
+                    createRainDrop();
+                }
+            }, 50);
+
+            // 10秒后停止下雨
+            weatherTimeout = setTimeout(() => {
+                clearInterval(rainInterval);
+                clearWeather();
+            }, 10000);
+        }
+
+        // 创建雨滴
+        function createRainDrop() {
+            const drop = document.createElement('div');
+            drop.className = 'rain-drop';
+            drop.style.left = Math.random() * window.innerWidth + 'px';
+            drop.style.animationDuration = (0.5 + Math.random() * 0.3) + 's';
+            drop.style.animationDelay = (Math.random() * 0.2) + 's';
+            document.body.appendChild(drop);
+            
+            setTimeout(() => drop.remove(), 1000);
+        }
+
+        // ========================================
+        // 1. 文字逐字出现动画
+        // ========================================
+        function initTextAnimation() {
+            const line1 = document.getElementById('title-line1');
+            const line2 = document.getElementById('title-line2');
+            
+            if (!line1 || !line2) return;
+            
+            const text1 = '圣水';
+            const text2 = 'SHENGSHUI';
+            
+            line1.innerHTML = '';
+            line2.innerHTML = '';
+            
+            text1.split('').forEach((char, i) => {
+                const span = document.createElement('span');
+                span.className = 'char';
+                span.textContent = char;
+                span.style.animationDelay = `${i * 0.1}s`;
+                line1.appendChild(span);
+            });
+            
+            text2.split('').forEach((char, i) => {
+                const span = document.createElement('span');
+                span.className = 'char';
+                span.textContent = char;
+                span.style.animationDelay = `${(text1.length + i) * 0.1}s`;
+                line2.appendChild(span);
+            });
+        }
+
+        // 页面加载后立即执行文字动画
+        window.addEventListener('DOMContentLoaded', initTextAnimation);
+
+        // ========================================
+        // 2. 按钮水波纹效果
+        // ========================================
+        const ctaButton = document.getElementById('cta-button');
+        
+        if (ctaButton) {
+            ctaButton.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+                ripple.style.width = ripple.style.height = '10px';
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 800);
+            });
+        }
+
+        // ========================================
+        // 3. 视差滚动效果
+        // ========================================
+        const parallaxLayer = document.querySelector('.parallax-layer');
+        
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            if (parallaxLayer) {
+                parallaxLayer.style.transform = `translateY(${scrolled * 0.3}px)`;
+            }
+        });
+
+        // ========================================
+        // 4. 音效系统（可选）
+        // ========================================
+        const sounds = {
+            desert: null,
+            dew: null,
+            ice: null,
+            water: null,
+            star: null,
+            hover: null,
+            click: null
+        };
+
+        // 用户首次交互后启用音效
+        document.addEventListener('click', function enableAudio() {
+            audioEnabled = true;
+            document.removeEventListener('click', enableAudio);
+        }, { once: true });
+
+        function playSound(type) {
+            if (!audioEnabled || !sounds[type]) return;
+            try {
+                sounds[type].currentTime = 0;
+                sounds[type].volume = 0.3;
+                sounds[type].play().catch(() => {});
+            } catch (e) {}
+        }
+
+        // 按钮音效
+        if (ctaButton) {
+            ctaButton.addEventListener('mouseenter', () => playSound('hover'));
+            ctaButton.addEventListener('click', () => playSound('click'));
+        }
+
         // --- 核心逻辑：四种模式切换（沙漠、晨露、冰川、水域） ---
 
         const body = document.getElementById('main-body');

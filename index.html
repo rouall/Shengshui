@@ -389,6 +389,64 @@ var _hmt = _hmt || [];
             20%, 40% { opacity: 0.3; }
         }
 
+        /* --- 页面震动效果 --- */
+        @keyframes thunderShake {
+            0%, 100% { transform: translate(0, 0); }
+            2% { transform: translate(-4px, 3px); }
+            4% { transform: translate(4px, -3px); }
+            6% { transform: translate(-3px, 4px); }
+            8% { transform: translate(3px, -4px); }
+            10% { transform: translate(-4px, 2px); }
+            12% { transform: translate(4px, -2px); }
+            14% { transform: translate(-2px, 3px); }
+            16% { transform: translate(2px, -3px); }
+            18% { transform: translate(-3px, 2px); }
+            20% { transform: translate(3px, -2px); }
+            22% { transform: translate(-2px, 4px); }
+            24% { transform: translate(2px, -4px); }
+            26% { transform: translate(-4px, 1px); }
+            28% { transform: translate(4px, -1px); }
+            30% { transform: translate(-3px, 3px); }
+            32% { transform: translate(3px, -3px); }
+            34% { transform: translate(-2px, 2px); }
+            36% { transform: translate(2px, -2px); }
+            38% { transform: translate(-3px, 1px); }
+            40% { transform: translate(3px, -1px); }
+            42% { transform: translate(-2px, 3px); }
+            44% { transform: translate(2px, -3px); }
+            46% { transform: translate(-3px, 2px); }
+            48% { transform: translate(3px, -2px); }
+            50% { transform: translate(-2px, 2px); }
+            52% { transform: translate(2px, -2px); }
+            54% { transform: translate(-3px, 1px); }
+            56% { transform: translate(3px, -1px); }
+            58% { transform: translate(-2px, 2px); }
+            60% { transform: translate(2px, -2px); }
+            62% { transform: translate(-2px, 1px); }
+            64% { transform: translate(2px, -1px); }
+            66% { transform: translate(-1px, 2px); }
+            68% { transform: translate(1px, -2px); }
+            70% { transform: translate(-2px, 1px); }
+            72% { transform: translate(2px, -1px); }
+            74% { transform: translate(-1px, 2px); }
+            76% { transform: translate(1px, -2px); }
+            78% { transform: translate(-2px, 1px); }
+            80% { transform: translate(2px, -1px); }
+            82% { transform: translate(-1px, 1px); }
+            84% { transform: translate(1px, -1px); }
+            86% { transform: translate(-1px, 1px); }
+            88% { transform: translate(1px, -1px); }
+            90% { transform: translate(-1px, 1px); }
+            92% { transform: translate(1px, -1px); }
+            94% { transform: translate(-1px, 0px); }
+            96% { transform: translate(1px, 0px); }
+            98% { transform: translate(-1px, 0px); }
+        }
+
+        body.thunder-shake {
+            animation: thunderShake 4s ease-in-out;
+        }
+
         /* --- 雨滴效果 --- */
         .rain-drop {
             position: fixed;
@@ -601,7 +659,16 @@ var _hmt = _hmt || [];
             }
         }
 
-        // 播放音频
+        // 停止所有音频
+        function stopAllAudio() {
+            Object.keys(audioFiles).forEach(key => {
+                audioFiles[key].pause();
+                audioFiles[key].currentTime = 0;
+            });
+            currentAudio = null;
+        }
+
+        // 播放音频（单独播放）
         function playAudio(type) {
             stopAudio();
             currentAudio = audioFiles[type];
@@ -609,6 +676,17 @@ var _hmt = _hmt || [];
             currentAudio.play()
                 .then(() => console.log(`播放音频: ${type}`))
                 .catch(e => console.warn(`音频播放失败 (${type}):`, e.message));
+        }
+
+        // 播放多个音频（同时播放）
+        function playMultipleAudio(types) {
+            stopAllAudio();
+            types.forEach(type => {
+                audioFiles[type].currentTime = 0;
+                audioFiles[type].play()
+                    .then(() => console.log(`播放音频: ${type}`))
+                    .catch(e => console.warn(`音频播放失败 (${type}):`, e.message));
+            });
         }
 
         // 清理天气效果
@@ -624,8 +702,8 @@ var _hmt = _hmt || [];
             // 移除所有天气元素
             document.querySelectorAll('.screen-flash, .rain-drop').forEach(el => el.remove());
             
-            // 停止音频
-            stopAudio();
+            // 停止所有音频
+            stopAllAudio();
             
             currentWeather = null;
         }
@@ -664,19 +742,14 @@ var _hmt = _hmt || [];
         function startWindyThunderstorm(x, y) {
             currentWeather = 'windy-storm';
             
-            // 播放风声
-            playAudio('wind');
+            // 立即打雷
+            playAudio('thunder');
+            createThunderSequence(x, y);
             
-            // 1秒后开始打雷
+            // 3秒后开始下雨
             weatherTimeout = setTimeout(() => {
-                playAudio('thunder');
-                createThunderSequence(x, y);
-                
-                // 3秒后开始下雨
-                weatherTimeout = setTimeout(() => {
-                    startRain();
-                }, 3000);
-            }, 1000);
+                startRain(true); // 传入true表示有风
+            }, 3000);
         }
 
         // 开始雷暴（无风）
@@ -689,7 +762,7 @@ var _hmt = _hmt || [];
             
             // 3秒后开始下雨
             weatherTimeout = setTimeout(() => {
-                startRain();
+                startRain(false); // 传入false表示无风
             }, 3000);
         }
 
@@ -718,6 +791,12 @@ var _hmt = _hmt || [];
             
             const startY = 0;
             const endY = lightningCanvas.height;
+            
+            // 触发页面震动
+            document.body.classList.add('thunder-shake');
+            setTimeout(() => {
+                document.body.classList.remove('thunder-shake');
+            }, 4000);
             
             // 绘制主闪电路径
             drawLightningBolt(startX, startY, startX + (Math.random() - 0.5) * 100, endY, 6);
@@ -813,8 +892,17 @@ var _hmt = _hmt || [];
         }
 
         // 开始下雨
-        function startRain() {
-            playAudio('rain');
+        function startRain(hasWind) {
+            // 随机决定是否同时播放雨声和风声
+            if (hasWind && Math.random() > 0.3) {
+                // 70%概率同时播放雨声和风声
+                playMultipleAudio(['rain', 'wind']);
+                console.log('下雨模式: 雨声 + 风声');
+            } else {
+                // 只播放雨声
+                playAudio('rain');
+                console.log('下雨模式: 只有雨声');
+            }
             
             // 创建雨滴
             const rainInterval = setInterval(() => {

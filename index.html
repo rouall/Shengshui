@@ -607,11 +607,11 @@ var _hmt = _hmt || [];
         let lastClickTime = 0;
         const clickCooldown = 1000;
 
-        // 音频管理
+        // 音频管理 - 使用本地音频文件
         const audioFiles = {
-            thunder: new Audio('thunderstorm.mp3'),
-            rain: new Audio('rain.mp3'),
-            wind: new Audio('wind.mp3')
+            thunder: new Audio('resource/sounds/thunderstorm.mp3'),
+            rain: new Audio('resource/sounds/rain.mp3'),
+            wind: new Audio('resource/sounds/wind.mp3')
         };
 
         // 设置音频循环
@@ -623,6 +623,16 @@ var _hmt = _hmt || [];
         audioFiles.thunder.volume = 0.6;
         audioFiles.rain.volume = 0.4;
         audioFiles.wind.volume = 0.3;
+
+        // 音频加载错误处理
+        Object.keys(audioFiles).forEach(key => {
+            audioFiles[key].addEventListener('error', (e) => {
+                console.warn(`❌ 音频文件 ${key} 加载失败：${audioFiles[key].src}`);
+            });
+            audioFiles[key].addEventListener('canplaythrough', () => {
+                console.log(`✓ 音频文件 ${key} 加载成功`);
+            });
+        });
 
         // 停止并清理音频
         function stopAudio() {
@@ -638,7 +648,9 @@ var _hmt = _hmt || [];
             stopAudio();
             currentAudio = audioFiles[type];
             currentAudio.currentTime = 0;
-            currentAudio.play().catch(e => console.log('音频播放失败:', e));
+            currentAudio.play()
+                .then(() => console.log(`播放音频: ${type}`))
+                .catch(e => console.warn(`音频播放失败 (${type}):`, e.message));
         }
 
         // 清理天气效果
@@ -670,6 +682,8 @@ var _hmt = _hmt || [];
             }
             lastClickTime = now;
 
+            console.log('触发天气效果，位置:', e.clientX, e.clientY);
+
             // 清理旧的天气效果
             clearWeather();
 
@@ -677,8 +691,10 @@ var _hmt = _hmt || [];
             const hasWind = Math.random() > 0.5;
             
             if (hasWind) {
+                console.log('天气类型: 有风雷暴');
                 startWindyThunderstorm(e.clientX, e.clientY);
             } else {
+                console.log('天气类型: 无风雷暴');
                 startThunderstorm(e.clientX, e.clientY);
             }
         });

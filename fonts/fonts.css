@@ -1,9 +1,13 @@
+/* 本地字体配置 - 避免使用 Google Fonts CDN */
+/* 字体文件已下载到本地，提高加载速度并避免网络依赖 */
+
+/* Cinzel 字体 - 用于英文标题 */
 @font-face {
   font-family: 'Cinzel';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('./Cinzel-400.ttf') format('truetype');
+  src: url('./Cinzel-Regular.woff2') format('woff2');
 }
 
 @font-face {
@@ -11,15 +15,16 @@
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('./Cinzel-700.ttf') format('truetype');
+  src: url('./Cinzel-Bold.woff2') format('woff2');
 }
 
+/* Noto Sans SC 字体 - 中文字体 */
 @font-face {
   font-family: 'Noto Sans SC';
   font-style: normal;
   font-weight: 300;
   font-display: swap;
-  src: url('./NotoSansSC-300.ttf') format('truetype');
+  src: url('./NotoSansSC-Light.woff2') format('woff2');
 }
 
 @font-face {
@@ -27,7 +32,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('./NotoSansSC-400.ttf') format('truetype');
+  src: url('./NotoSansSC-Regular.woff2') format('woff2');
 }
 
 @font-face {
@@ -35,5 +40,14 @@
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: url('./NotoSansSC-500.ttf') format('truetype');
+  src: url('./NotoSansSC-Medium.woff2') format('woff2');
+}
+
+/* 字体备用方案 - 如果自定义字体加载失败，使用系统字体 */
+body {
+  font-family: 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+}
+
+.hero-title {
+  font-family: 'Cinzel', 'Times New Roman', 'Georgia', serif;
 }

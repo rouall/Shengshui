@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>字体测试页面</title>
+    <link href="./fonts/fonts.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 40px;
+            background: #1a1a1a;
+            color: white;
+            line-height: 1.6;
+        }
+        
+        .test-section {
+            margin: 40px 0;
+            padding: 20px;
+            border: 1px solid #333;
+            border-radius: 8px;
+        }
+        
+        .cinzel-test {
+            font-family: 'Cinzel', 'Times New Roman', serif;
+        }
+        
+        .noto-test {
+            font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
+        }
+        
+        .status {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 10px;
+        }
+        
+        .success { color: #4CAF50; }
+        .warning { color: #FF9800; }
+        .error { color: #F44336; }
+    </style>
+</head>
+<body>
+    <h1>字体加载测试页面</h1>
+    
+    <div class="test-section">
+        <div class="status" id="cinzel-status">检查 Cinzel 字体...</div>
+        <h2 class="cinzel-test">Cinzel Font Test - SHENGSHUI</h2>
+        <p class="cinzel-test" style="font-weight: 700;">Bold Weight Test - 圣水</p>
+    </div>
+    
+    <div class="test-section">
+        <div class="status" id="noto-status">检查 Noto Sans SC 字体...</div>
+        <h2 class="noto-test">Noto Sans SC 字体测试</h2>
+        <p class="noto-test" style="font-weight: 300;">轻体：发现每一滴的价值</p>
+        <p class="noto-test" style="font-weight: 400;">常规：感受生命的极度渴望</p>
+        <p class="noto-test" style="font-weight: 500;">中等：即刻润泽感官</p>
+    </div>
+    
+    <div class="test-section">
+        <h3>字体文件状态检查</h3>
+        <div id="font-files-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>下载指南</h3>
+        <p>如果字体显示不正确，请参考 <a href="FONT_DOWNLOAD_GUIDE.md" style="color: #4CAF50;">FONT_DOWNLOAD_GUIDE.md</a> 文件中的下载指南。</p>
+        <p>推荐使用 <a href="https://gwfh.mranftl.com/fonts" target="_blank" style="color: #4CAF50;">Google Webfonts Helper</a> 下载字体文件。</p>
+    </div>
+
+    <script>
+        // 检查字体是否加载成功
+        function checkFont(fontFamily, elementId) {
+            const testElement = document.createElement('div');
+            testElement.style.fontFamily = fontFamily;
+            testElement.style.fontSize = '16px';
+            testElement.style.position = 'absolute';
+            testElement.style.visibility = 'hidden';
+            testElement.textContent = 'Test';
+            document.body.appendChild(testElement);
+            
+            const computedStyle = window.getComputedStyle(testElement);
+            const actualFont = computedStyle.fontFamily;
+            document.body.removeChild(testElement);
+            
+            const statusElement = document.getElementById(elementId);
+            if (actualFont.includes(fontFamily.replace(/'/g, ''))) {
+                statusElement.textContent = `✅ ${fontFamily} 字体加载成功`;
+                statusElement.className = 'status success';
+            } else {
+                statusElement.textContent = `⚠️ ${fontFamily} 字体未加载，使用备用字体: ${actualFont}`;
+                statusElement.className = 'status warning';
+            }
+        }
+        
+        // 检查字体文件是否存在
+        async function checkFontFiles() {
+            const fontFiles = [
+                'fonts/Cinzel-Regular.woff2',
+                'fonts/Cinzel-Bold.woff2',
+                'fonts/NotoSansSC-Light.woff2',
+                'fonts/NotoSansSC-Regular.woff2',
+                'fonts/NotoSansSC-Medium.woff2'
+            ];
+            
+            const statusContainer = document.getElementById('font-files-status');
+            statusContainer.innerHTML = '';
+            
+            for (const file of fontFiles) {
+                try {
+                    const response = await fetch(file, { method: 'HEAD' });
+                    const div = document.createElement('div');
+                    if (response.ok) {
+                        div.innerHTML = `✅ ${file} - 文件存在`;
+                        div.className = 'success';
+                    } else {
+                        div.innerHTML = `❌ ${file} - 文件不存在 (${response.status})`;
+                        div.className = 'error';
+                    }
+                    statusContainer.appendChild(div);
+                } catch (error) {
+                    const div = document.createElement('div');
+                    div.innerHTML = `❌ ${file} - 检查失败: ${error.message}`;
+                    div.className = 'error';
+                    statusContainer.appendChild(div);
+                }
+            }
+        }
+        
+        // 页面加载完成后检查字体
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                checkFont('Cinzel', 'cinzel-status');
+                checkFont('Noto Sans SC', 'noto-status');
+                checkFontFiles();
+            }, 1000); // 等待字体加载
+        });
+    </script>
+</body>
+</html>

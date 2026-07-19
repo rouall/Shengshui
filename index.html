@@ -392,7 +392,7 @@ var _hmt = _hmt || [];
             background: rgba(255, 255, 255, 0.7);
             pointer-events: none;
             z-index: 98;
-            animation: screenFlash 0.2s ease-out;
+            animation: screenFlash 0.4s ease-out;
         }
 
         @keyframes screenFlash {
@@ -456,7 +456,7 @@ var _hmt = _hmt || [];
         }
 
         body.thunder-shake {
-            animation: thunderShake 4s ease-in-out;
+            animation: thunderShake 8s ease-in-out;
         }
 
         /* --- 雨滴效果 --- */
@@ -643,6 +643,7 @@ var _hmt = _hmt || [];
         let currentWeather = null;
         let weatherTimeout = null;
         let currentAudio = null;
+        let thunderEndedListener = null;
         let lastClickTime = 0;
         const clickCooldown = 1000;
 
@@ -742,6 +743,12 @@ var _hmt = _hmt || [];
             // 停止所有音频
             stopAllAudio();
             
+            // 清除雷声结束监听器，防止旧序列串音
+            if (thunderEndedListener) {
+                audioFiles.thunder.removeEventListener('ended', thunderEndedListener);
+                thunderEndedListener = null;
+            }
+            
             currentWeather = null;
         }
 
@@ -785,8 +792,6 @@ var _hmt = _hmt || [];
         function startWindyThunderstorm(x, y) {
             currentWeather = 'windy-storm';
             
-            // 立即打雷
-            playAudio('thunder');
             createThunderSequence(x, y);
             
             // 3秒后开始下雨
@@ -799,8 +804,6 @@ var _hmt = _hmt || [];
         function startThunderstorm(x, y) {
             currentWeather = 'storm';
             
-            // 立即打雷
-            playAudio('thunder');
             createThunderSequence(x, y);
             
             // 3秒后开始下雨
@@ -811,21 +814,26 @@ var _hmt = _hmt || [];
 
         // 创建雷电序列
         function createThunderSequence(x, y) {
-            // 第一次闪电 - 屏幕随机位置
+            // 清除上一次的雷声结束监听器
+            if (thunderEndedListener) {
+                audioFiles.thunder.removeEventListener('ended', thunderEndedListener);
+                thunderEndedListener = null;
+            }
+            
+            // 第一道闪电 + 雷声
             const x1 = 200 + Math.random() * (window.innerWidth - 400);
             drawLightning(x1);
+            playAudio('thunder');
             
-            // 0.6秒后第二次
-            setTimeout(() => {
+            // 第一道雷声播放结束后，再触发第二道闪电 + 雷声
+            thunderEndedListener = function onFirstThunderEnded() {
+                audioFiles.thunder.removeEventListener('ended', thunderEndedListener);
+                thunderEndedListener = null;
                 const x2 = 200 + Math.random() * (window.innerWidth - 400);
                 drawLightning(x2);
-            }, 600);
-            
-            // 1.5秒后第三次
-            setTimeout(() => {
-                const x3 = 200 + Math.random() * (window.innerWidth - 400);
-                drawLightning(x3);
-            }, 1500);
+                playAudio('thunder');
+            };
+            audioFiles.thunder.addEventListener('ended', thunderEndedListener, { once: true });
         }
 
         // 绘制真实的树根状闪电
@@ -839,7 +847,7 @@ var _hmt = _hmt || [];
             document.body.classList.add('thunder-shake');
             setTimeout(() => {
                 document.body.classList.remove('thunder-shake');
-            }, 4000);
+            }, 8000);
             
             // 绘制主闪电路径
             drawLightningBolt(startX, startY, startX + (Math.random() - 0.5) * 100, endY, 6);
@@ -858,7 +866,7 @@ var _hmt = _hmt || [];
                     drawLightningBolt(startX, startY, startX + (Math.random() - 0.5) * 100, endY, 6);
                 }
                 flickers++;
-                if (flickers > 5) {
+                if (flickers > 11) {
                     clearInterval(flickerInterval);
                     ctx.clearRect(0, 0, lightningCanvas.width, lightningCanvas.height);
                 }
@@ -931,7 +939,7 @@ var _hmt = _hmt || [];
             flash.className = 'screen-flash';
             document.body.appendChild(flash);
             
-            setTimeout(() => flash.remove(), 300);
+            setTimeout(() => flash.remove(), 600);
         }
 
         // 开始下雨
@@ -960,11 +968,11 @@ var _hmt = _hmt || [];
                 }
             }, 50);
 
-            // 10秒后停止下雨
+            // 33秒后停止下雨
             weatherTimeout = setTimeout(() => {
                 clearInterval(rainInterval);
                 clearWeather();
-            }, 10000);
+            }, 33000);
         }
 
         // 创建雨滴

@@ -1,9 +1,56 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-i18n-title="meta.products">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SHENGSHUI | 产品</title>
+
+  <!-- SEO 基础 -->
+  <meta name="description" content="SHENGSHUI 圣水精选全球好水：百岁山、依云、巴黎水、农夫山泉等天然矿泉水与气泡水精选，点击直达。">
+  <meta name="keywords" content="圣水,SHENGSHUI,矿泉水,气泡水,天然水,依云,巴黎水,百岁山,农夫山泉,精选好物">
+  <link rel="canonical" href="https://shengshui.com/products.html">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="theme-color" content="#050607">
+
+  <!-- Open Graph（社交分享） -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SHENGSHUI">
+  <meta property="og:url" content="https://shengshui.com/products.html">
+  <meta property="og:title" content="SHENGSHUI | 精选好物">
+  <meta property="og:description" content="圣水精选全球好水：天然矿泉水与气泡水精选，点击直达。">
+  <meta property="og:image" content="https://shengshui.com/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="SHENGSHUI 圣水精选好物">
+  <meta property="og:locale" content="zh_CN">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SHENGSHUI | 精选好物">
+  <meta name="twitter:description" content="圣水精选全球好水：天然矿泉水与气泡水精选，点击直达。">
+  <meta name="twitter:image" content="https://shengshui.com/og-image.jpg">
+
+  <!-- 结构化数据（SEO + GEO） -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": "https://shengshui.com/products.html#webpage",
+    "url": "https://shengshui.com/products.html",
+    "name": "SHENGSHUI 精选好物",
+    "description": "圣水精选全球天然矿泉水与气泡水",
+    "inLanguage": "zh-CN",
+    "isPartOf": { "@id": "https://shengshui.com/#website" },
+    "about": { "@id": "https://shengshui.com/#org" }
+  }
+  </script>
+
+  <!-- 性能提示：预连接第三方资源 -->
+  <link rel="preconnect" href="https://cdn.tailwindcss.com">
+  <link rel="preconnect" href="https://img.alicdn.com">
+
+  <script src="./i18n.js"></script>
+  <link href="./i18n.css" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="./fonts/fonts.css" rel="stylesheet">
   <link rel="icon" type="image/png" href="./favicon.png">
@@ -26,6 +73,8 @@
         radial-gradient(circle at 60% 80%, rgba(255, 189, 89, 0.05), transparent 48%);
     }
     .hairline { border-top: 1px solid rgba(255,255,255,0.06); }
+
+    /* --- 语言切换器（共享样式见 i18n.css） --- */
   </style>
 </head>
 <body class="min-h-screen text-white">
@@ -34,8 +83,14 @@
   <header class="sticky top-0 z-30">
     <div class="px-6 md:px-10 py-6 flex items-center justify-between">
       <a href="./index.html" class="hero-title text-sm md:text-base tracking-[0.35em] text-white/90 hover:text-white transition">SHENGSHUI</a>
-      <div class="text-[11px] tracking-[0.35em] uppercase text-white/50 hidden md:block">Discover The Value In Every Drop</div>
-      <a href="./index.html" class="text-xs tracking-[0.25em] text-white/60 hover:text-white transition">返回首页</a>
+      <div class="flex items-center gap-6">
+        <div class="text-[11px] tracking-[0.35em] uppercase text-white/50 hidden md:block">Discover The Value In Every Drop</div>
+        <div class="lang-switch" role="group" aria-label="Language / 语言">
+          <button type="button" class="lang-btn" data-set-lang="zh">中</button>
+          <button type="button" class="lang-btn" data-set-lang="en">EN</button>
+        </div>
+        <a href="./index.html" class="text-xs tracking-[0.25em] text-white/60 hover:text-white transition" data-i18n="nav.backHome">返回首页</a>
+      </div>
     </div>
     <div class="hairline"></div>
   </header>
@@ -44,7 +99,7 @@
     <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-10">
       <div>
         <div class="text-[11px] tracking-[0.55em] uppercase text-white/55 mb-4">Products</div>
-        <h1 class="hero-title text-3xl md:text-5xl leading-tight">发现每一滴的价值</h1>
+        <h1 class="hero-title text-3xl md:text-5xl leading-tight" data-i18n="productsPage.heading">发现每一滴的价值</h1>
       </div>
     </div>
 
@@ -190,6 +245,16 @@
         .filter(x => x.name || x.image || x.url);
 
       render(items);
+
+      // 统计文案（随语言切换刷新）
+      const statusEl = document.getElementById('status');
+      if (statusEl) {
+        const updateStatus = () => {
+          statusEl.textContent = I18N.t.format('productsPage.status', { n: items.length, m: Math.min(items.length, 9) });
+        };
+        updateStatus();
+        document.addEventListener('languagechange', updateStatus);
+      }
     }
 
     loadEmbedded();

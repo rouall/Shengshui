@@ -1,0 +1,32 @@
+/* ============================================
+ * SHENGSHUI 语言切换器样式（配合 i18n.js 使用）
+ * 设计原则：小巧、低调，不抢主视觉
+ * ============================================ */
+
+.lang-switch {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+.lang-btn {
+    appearance: none;
+    cursor: pointer;
+    min-width: 26px;
+    height: 20px;
+    padding: 0 5px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: rgba(255, 255, 255, 0.32);
+    background: transparent;
+    border: none;
+    border-radius: 999px;
+    transition: color 0.3s ease, background 0.3s ease;
+}
+.lang-btn:hover {
+    color: rgba(255, 255, 255, 0.75);
+}
+.lang-btn.active {
+    color: var(--theme-color, #00d2ff);
+    background: rgba(255, 255, 255, 0.06);
+}

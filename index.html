@@ -1,9 +1,72 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-i18n-title="meta.home">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SHENGSHUI | 发现每一滴的价值</title>
+
+    <!-- SEO 基础 -->
+    <meta name="description" content="SHENGSHUI 圣水 —— 源自自然的奢侈饮用水品牌。发现每一滴的价值：源头可溯、矿物均衡、纯净如一。探索圣水精选全球好水。">
+    <meta name="keywords" content="圣水,SHENGSHUI,矿泉水,天然水,奢侈饮用水,高端水,气泡水,精选好物,域名合作">
+    <link rel="canonical" href="https://shengshui.com/">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="theme-color" content="#050607">
+
+    <!-- Open Graph（社交分享） -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="SHENGSHUI">
+    <meta property="og:url" content="https://shengshui.com/">
+    <meta property="og:title" content="SHENGSHUI | 发现每一滴的价值">
+    <meta property="og:description" content="源自自然的奢侈饮用水品牌：源头可溯、矿物均衡、纯净如一。">
+    <meta property="og:image" content="https://shengshui.com/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="SHENGSHUI 圣水 —— 星空下的纯净之水">
+    <meta property="og:locale" content="zh_CN">
+    <meta property="og:locale:alternate" content="en_US">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SHENGSHUI | 发现每一滴的价值">
+    <meta name="twitter:description" content="源自自然的奢侈饮用水品牌：源头可溯、矿物均衡、纯净如一。">
+    <meta name="twitter:image" content="https://shengshui.com/og-image.jpg">
+
+    <!-- 结构化数据（SEO + GEO） -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://shengshui.com/#org",
+          "name": "SHENGSHUI",
+          "alternateName": "圣水",
+          "url": "https://shengshui.com/",
+          "logo": "https://shengshui.com/favicon.png",
+          "email": "colintenk@gmail.com",
+          "description": "源自自然的奢侈饮用水品牌，主张发现每一滴的价值。"
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://shengshui.com/#website",
+          "url": "https://shengshui.com/",
+          "name": "SHENGSHUI 圣水",
+          "description": "发现每一滴的价值",
+          "inLanguage": "zh-CN",
+          "publisher": { "@id": "https://shengshui.com/#org" }
+        }
+      ]
+    }
+    </script>
+
+    <!-- 性能提示：预连接第三方资源 -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://img.alicdn.com">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="apple-touch-icon" href="./favicon.png">
+
+    <script src="./i18n.js"></script>
+    <link href="./i18n.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="./fonts/fonts.css" rel="stylesheet">
     <link rel="icon" type="image/png" href="./favicon.png">
@@ -258,34 +321,6 @@ var _hmt = _hmt || [];
             display: none;
         }
 
-        /* --- 液态感应按钮 --- */
-        .btn-liquid {
-            position: relative;
-            background: rgba(0, 0, 0, 0.3);
-            color: white;
-            border: 2px solid rgba(255,255,255,0.4);
-            overflow: hidden;
-            transition: all 0.5s;
-            backdrop-filter: blur(8px);
-        }
-        .btn-liquid::before {
-            content: '';
-            position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: all 0.6s;
-        }
-        .btn-liquid:hover {
-            border-color: var(--theme-color);
-            box-shadow: 0 0 30px var(--theme-color);
-            transform: translateY(-3px);
-        }
-        .btn-liquid:hover::before { left: 100%; }
-        body.dew-mode .btn-liquid:hover { --theme-color: #00d2ff; }
-        body.ice-mode .btn-liquid:hover { --theme-color: #87cefa; }
-        body.water-mode .btn-liquid:hover { --theme-color: #00ffd5; }
-        body.star-mode .btn-liquid:hover { --theme-color: #b19cd9; }
-        body:not(.dew-mode):not(.ice-mode):not(.water-mode):not(.star-mode) .btn-liquid:hover { --theme-color: #ffbd59; }
-
         .nav-panel-backdrop {
             position: fixed;
             inset: 0;
@@ -352,6 +387,136 @@ var _hmt = _hmt || [];
             border: 1px solid rgba(255,255,255,0.14);
             background: rgba(255,255,255,0.04);
         }
+
+        /* --- 合作弹窗 --- */
+        .coop-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 70;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.72);
+            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(6px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 360ms ease;
+        }
+        .coop-backdrop.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .coop-modal {
+            position: relative;
+            width: min(460px, 100%);
+            background: #0a0f11;
+            border: 1px solid rgba(0, 210, 255, 0.28);
+            border-radius: 12px;
+            box-shadow:
+                0 24px 80px rgba(0, 0, 0, 0.6),
+                0 0 44px rgba(0, 210, 255, 0.08);
+            padding: 30px 28px 28px;
+            transform: translateY(14px) scale(0.98);
+            transition: transform 360ms ease;
+        }
+        .coop-backdrop.show .coop-modal {
+            transform: translateY(0) scale(1);
+        }
+        .coop-title {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            color: rgba(255, 255, 255, 0.95);
+        }
+        .coop-text {
+            margin-top: 14px;
+            font-size: 14px;
+            line-height: 1.9;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .coop-email-row {
+            margin-top: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 14px 14px 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+        }
+        .coop-email {
+            font-family: 'SF Mono', Menlo, Consolas, monospace;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.88);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .coop-copy-btn {
+            appearance: none;
+            flex-shrink: 0;
+            cursor: pointer;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            color: #00d2ff;
+            background: transparent;
+            border: 1px solid rgba(0, 210, 255, 0.45);
+            border-radius: 6px;
+            padding: 8px 14px;
+            transition: all 0.3s ease;
+        }
+        .coop-copy-btn:hover {
+            background: rgba(0, 210, 255, 0.12);
+            border-color: rgba(0, 210, 255, 0.8);
+            box-shadow: 0 0 16px rgba(0, 210, 255, 0.25);
+        }
+        .coop-close {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            appearance: none;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 18px;
+            line-height: 1;
+            padding: 6px;
+            transition: color 0.25s ease, transform 0.25s ease;
+        }
+        .coop-close:hover {
+            color: rgba(255, 255, 255, 0.9);
+            transform: rotate(90deg);
+        }
+
+        /* --- 统一 Toast 提示 --- */
+        .toast {
+            position: fixed;
+            top: 96px;
+            left: 50%;
+            z-index: 90;
+            transform: translateX(-50%) translateY(-8px);
+            background: rgba(10, 15, 17, 0.92);
+            border: 1px solid rgba(0, 210, 255, 0.35);
+            border-radius: 8px;
+            padding: 10px 24px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 13px;
+            letter-spacing: 0.12em;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 300ms ease, transform 300ms ease;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* --- 语言切换器（共享样式见 i18n.css） --- */
 
         /* --- 视差容器 --- */
         .parallax-layer {
@@ -514,26 +679,41 @@ var _hmt = _hmt || [];
             }
         }
 
-        /* --- 按钮水波纹 --- */
-        .btn-liquid {
+        /* --- 精选好物推广卡片（扁平风格） --- */
+        .featured-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            width: min(88vw, 420px);
+            padding: 12px 20px 12px 12px;
+            background: rgba(0, 0, 0, 0.25);
+            border: none;
+            border-radius: 12px;
+            text-align: left;
             position: relative;
             overflow: hidden;
+            transition: all 0.5s ease;
         }
-
-        .ripple {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.6);
-            transform: scale(0);
-            animation: rippleEffect 0.8s ease-out;
-            pointer-events: none;
+        .featured-card::before {
+            content: '';
+            position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: all 0.7s;
         }
-
-        @keyframes rippleEffect {
-            to {
-                transform: scale(4);
-                opacity: 0;
-            }
+        .featured-card:hover {
+            background: rgba(0, 0, 0, 0.42);
+            transform: translateY(-2px);
+        }
+        .featured-card:hover::before { left: 100%; }
+        .featured-card img {
+            width: 52px;
+            height: 52px;
+            object-fit: cover;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+        .featured-card:hover .fc-cta {
+            color: var(--theme-color);
         }
 
     </style>
@@ -558,10 +738,10 @@ var _hmt = _hmt || [];
 
     <nav class="glass-nav flex justify-between items-center px-8 py-6 fixed w-full z-50">
         <div class="text-3xl font-bold tracking-[0.2em] hero-title dynamic-text">SHENGSHUI</div>
-        <div class="hidden md:flex space-x-12 text-xs tracking-[0.2em] font-medium">
-            <a href="#" class="hover:text-white/70 transition" data-nav-panel="source">The Source</a>
-            <a href="https://metenk.com/" target="_blank" rel="noopener noreferrer" class="hover:text-white/70 transition">MeTenk</a>
-            <a href="https://www.openelse.com/" target="_blank" rel="noopener noreferrer" class="hover:text-white/70 transition">OpenElse</a>
+        <div class="flex items-center space-x-6 md:space-x-12 text-xs tracking-[0.2em] font-medium">
+            <a href="#" id="nav-coop" class="hover:text-white/70 transition" data-i18n="nav.coop">合作</a>
+            <a href="https://metenk.com/" target="_blank" rel="noopener noreferrer" class="hidden md:inline hover:text-white/70 transition">MeTenk</a>
+            <a href="https://www.openelse.com/" target="_blank" rel="noopener noreferrer" class="hidden md:inline hover:text-white/70 transition">OpenElse</a>
         </div>
     </nav>
 
@@ -576,15 +756,21 @@ var _hmt = _hmt || [];
             <span class="dynamic-text font-thin block mt-2 text-4xl md:text-6xl">SHENGSHUI</span>
         </h1>
 
-        <p id="hero-desc" class="text-lg md:text-2xl text-gray-200 max-w-2xl font-light italic mb-16 transition-all duration-1000 h-20 flex items-center justify-center">
+        <p id="hero-desc" data-i18n="hero.desc" class="text-lg md:text-2xl text-gray-200 max-w-2xl font-light italic mb-12 transition-all duration-1000 h-20 flex items-center justify-center">
             发现每一滴的价值。
         </p>
 
-        <div class="flex flex-col md:flex-row space-y-5 md:space-y-0 md:space-x-8">
-            <a href="./products.html" class="btn-liquid px-14 py-5 rounded-full text-lg font-bold tracking-widest" id="cta-button">
-                即刻润泽感官
+        <!-- 精选好物推广卡片：TODO 替换为京东联盟推广链接 -->
+        <section id="featured-banner" class="relative z-10 flex flex-col items-center" aria-label="精选好物">
+            <a href="https://m.tb.cn/h.8Irqpza" target="_blank" rel="noopener noreferrer nofollow" class="featured-card group">
+                <img src="https://img.alicdn.com/i2/725677994/O1CN01EJzUbV28vJ9EUypVm_!!725677994.jpg" alt="百岁山天然矿泉水" loading="lazy" />
+                <div class="flex-1 min-w-0">
+                    <div class="text-sm text-white/90 tracking-wide truncate" data-i18n="featured.name">百岁山天然矿泉水</div>
+                    <div class="text-xs text-white/50 mt-1.5 truncate" data-i18n="featured.desc">1L × 30瓶 整箱装 · 天然好水</div>
+                </div>
+                <div class="fc-cta text-[11px] tracking-[0.3em] uppercase text-white/55 transition shrink-0" data-i18n="featured.cta">去看看</div>
             </a>
-        </div>
+        </section>
 
     </main>
 
@@ -630,6 +816,29 @@ var _hmt = _hmt || [];
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- 合作弹窗 -->
+    <div id="coop-backdrop" class="coop-backdrop" role="dialog" aria-modal="true" aria-labelledby="coop-title">
+        <div class="coop-modal">
+            <button id="coop-close" class="coop-close" aria-label="关闭" data-i18n-aria="coop.close">✕</button>
+            <h2 id="coop-title" class="coop-title" data-i18n="coop.title">域名合作</h2>
+            <p class="coop-text" data-i18n="coop.text1">域名有自身价值，此域名可租用也可出售，有意向直接报价，真诚，互不墨迹。</p>
+            <p class="coop-text" data-i18n="coop.text2">如果您对域名合作、品牌联名或投资意向感兴趣，请通过以下邮箱与我们建立连接。</p>
+            <div class="coop-email-row">
+                <span id="coop-email" class="coop-email">colintenk@gmail.com</span>
+                <button id="coop-copy" class="coop-copy-btn" data-i18n="coop.copy">复制邮箱</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 全局 Toast 提示 -->
+    <div id="global-toast" class="toast" role="status" aria-live="polite"></div>
+
+    <!-- 左下角语言切换 -->
+    <div class="lang-switch fixed left-4 bottom-16 md:left-8 md:bottom-8 z-30" role="group" aria-label="Language / 语言">
+        <button type="button" class="lang-btn" data-set-lang="zh">中</button>
+        <button type="button" class="lang-btn" data-set-lang="en">EN</button>
     </div>
 
     <footer class="absolute bottom-8 w-full text-center text-xs text-white/40 tracking-widest uppercase z-20">
@@ -1046,33 +1255,10 @@ var _hmt = _hmt || [];
         window.addEventListener('DOMContentLoaded', initTextAnimation);
 
         // ========================================
-        // 2. 按钮水波纹效果
-        // ========================================
-        const ctaButton = document.getElementById('cta-button');
-        
-        if (ctaButton) {
-            ctaButton.addEventListener('click', function(e) {
-                const rect = this.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                const ripple = document.createElement('span');
-                ripple.className = 'ripple';
-                ripple.style.left = `${x}px`;
-                ripple.style.top = `${y}px`;
-                ripple.style.width = ripple.style.height = '10px';
-                
-                this.appendChild(ripple);
-                
-                setTimeout(() => ripple.remove(), 800);
-            });
-        }
-
-        // ========================================
-        // 3. 视差滚动效果
+        // 2. 视差滚动效果
         // ========================================
         const parallaxLayer = document.querySelector('.parallax-layer');
-        
+
         window.addEventListener('scroll', () => {
             const scrolled = window.pageYOffset;
             if (parallaxLayer) {
@@ -1081,8 +1267,9 @@ var _hmt = _hmt || [];
         });
 
         // ========================================
-        // 4. 音效系统（可选）
+        // 3. 音效系统（可选）
         // ========================================
+        let audioEnabled = false;
         const sounds = {
             desert: null,
             dew: null,
@@ -1106,12 +1293,6 @@ var _hmt = _hmt || [];
                 sounds[type].volume = 0.3;
                 sounds[type].play().catch(() => {});
             } catch (e) {}
-        }
-
-        // 按钮音效
-        if (ctaButton) {
-            ctaButton.addEventListener('mouseenter', () => playSound('hover'));
-            ctaButton.addEventListener('click', () => playSound('click'));
         }
 
         // --- 核心逻辑：四种模式切换（沙漠、晨露、冰川、水域） ---
@@ -1691,29 +1872,7 @@ var _hmt = _hmt || [];
             bgLayers[mode].style.backgroundImage = `url('${url}')`;
         }
 
-        // 定义四种模式的文案
-        const content = {
-            desert: {
-                sub: "· 感受生命的极度渴望 ·",
-                desc: "当世界干涸，唯有一滴纯净，值得你不远万里。"
-            },
-            dew: {
-                sub: "· 沉浸自然的极致滋养 ·",
-                desc: "源自晨曦微露的刹那，让每一个细胞重新呼吸。"
-            },
-            ice: {
-                sub: "· 体验极地的纯净力量 ·",
-                desc: "来自冰原深处的馈赠，历经千年淬炼的极致纯净。"
-            },
-            water: {
-                sub: "· 源自自然的圣水 ·",
-                desc: "以矿物与时间雕刻的层次感，入口即是高级的宁静。"
-            },
-            star: {
-                sub: "· 汲取星辰的永恒之水 ·",
-                desc: "如同夜空中的璀璨星河，每一滴都承载着宇宙的深邃与神秘。"
-            }
-        };
+        // 定义四种模式的文案（已迁移至 i18n.js 的 modes 节点）
 
         let currentMode = 0; // 0=沙漠, 1=晨露, 2=冰川, 3=水域, 4=星空
         const modes = ['desert', 'dew', 'ice', 'water', 'star'];
@@ -1754,8 +1913,8 @@ var _hmt = _hmt || [];
             heroDesc.style.opacity = 0;
 
             setTimeout(() => {
-                subHeadline.innerText = content[nextMode].sub;
-                heroDesc.innerText = content[nextMode].desc;
+                subHeadline.innerText = I18N.t('modes.' + nextMode + '.sub');
+                heroDesc.innerText = I18N.t('modes.' + nextMode + '.desc');
                 subHeadline.style.opacity = 1;
                 heroDesc.style.opacity = 1;
             }, 750);
@@ -1790,6 +1949,91 @@ var _hmt = _hmt || [];
         setTimeout(() => {
             toggleMode();
         }, 15000);
+
+        // 语言切换时，立即刷新当前模式的轮播文案
+        document.addEventListener('languagechange', function () {
+            subHeadline.innerText = I18N.t('modes.' + modes[currentMode] + '.sub');
+            heroDesc.innerText = I18N.t('modes.' + modes[currentMode] + '.desc');
+        });
+
+        // ========================================
+        // 合作弹窗 + 统一 Toast
+        // ========================================
+        (function () {
+            const coopBackdrop = document.getElementById('coop-backdrop');
+            const coopModal = coopBackdrop ? coopBackdrop.querySelector('.coop-modal') : null;
+            const coopCloseBtn = document.getElementById('coop-close');
+            const coopCopyBtn = document.getElementById('coop-copy');
+            const coopEmail = document.getElementById('coop-email');
+            const toastEl = document.getElementById('global-toast');
+            if (!coopBackdrop || !coopCloseBtn || !coopCopyBtn || !coopEmail || !toastEl) return;
+
+            let toastTimer = null;
+            let lastFocused = null;
+
+            // 统一 Toast：任何模块都可复用 showToast('文案')
+            window.showToast = function (msg) {
+                toastEl.textContent = msg;
+                toastEl.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2200);
+            };
+
+            function openCoop() {
+                lastFocused = document.activeElement;
+                coopBackdrop.classList.add('show');
+                setTimeout(() => coopCloseBtn.focus(), 380);
+            }
+
+            function closeCoop() {
+                coopBackdrop.classList.remove('show');
+                if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+            }
+
+            // 导航"合作"链接触发弹窗
+            const navCoopLink = document.getElementById('nav-coop');
+            if (navCoopLink) {
+                navCoopLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    openCoop();
+                });
+            }
+
+            // 关闭：按钮 / 点击背景 / ESC
+            coopCloseBtn.addEventListener('click', closeCoop);
+            coopBackdrop.addEventListener('click', function (e) {
+                if (!coopModal.contains(e.target)) closeCoop();
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && coopBackdrop.classList.contains('show')) closeCoop();
+            });
+
+            // 复制邮箱（clipboard API + 降级方案）
+            coopCopyBtn.addEventListener('click', function () {
+                const email = coopEmail.textContent.trim();
+                const done = () => window.showToast(I18N.t('coop.copied'));
+                const fallback = () => {
+                    const ta = document.createElement('textarea');
+                    ta.value = email;
+                    ta.style.position = 'fixed';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    try {
+                        document.execCommand('copy');
+                        done();
+                    } catch (err) {
+                        window.showToast(I18N.t('coop.copyFail'));
+                    }
+                    ta.remove();
+                };
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(email).then(done).catch(fallback);
+                } else {
+                    fallback();
+                }
+            });
+        })();
 
     </script>
 </body>

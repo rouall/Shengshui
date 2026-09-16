@@ -270,6 +270,26 @@ var _hmt = _hmt || [];
             transition: opacity 1.5s ease;
         }
 
+        /* --- RippleDistortion 水波纹背景特效层（WebGL2 就绪后淡入；不可用时自动隐藏回退） --- */
+        #ripple-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+        #ripple-layer.ready {
+            opacity: 1;
+        }
+        /* 特效层接管背景后，暂停 CSS 背景动画以省电 */
+        body.ripple-active .bg-video {
+            animation-play-state: paused;
+        }
+
         /* --- 导航与文字 --- */
         .glass-nav {
             background: transparent;
@@ -728,6 +748,8 @@ var _hmt = _hmt || [];
         <div id="video-water" class="bg-video"></div>
         <div id="video-star" class="bg-video"></div>
     </div>
+    <!-- 水波纹扭曲背景特效层（指针划过产生涟漪，WebGL2 不可用时保持透明回退） -->
+    <div id="ripple-layer" aria-hidden="true"></div>
     <div class="overlay-dynamic"></div>
     <canvas id="fx-canvas"></canvas>
     <div class="sandstorm"></div>
@@ -845,6 +867,7 @@ var _hmt = _hmt || [];
         Copyright ©2025 Shengshui All Rights Reserved. <a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">京ICP备15004867号-3</a>
     </footer>
 
+    <script src="./ripple-distortion.js"></script>
     <script>
         // ========================================
         // 雷雨天气系统 - 真实闪电效果
@@ -1870,10 +1893,15 @@ var _hmt = _hmt || [];
             const raw = `resource/images/${mode}/${file}`;
             const url = encodeURI(raw);
             bgLayers[mode].style.backgroundImage = `url('${url}')`;
+            // 同步到水波纹特效层（仅当前激活模式，避免预加载全部图片）
+            if (ripple && mode === modes[currentMode]) {
+                ripple.setImage(url);
+            }
         }
 
         // 定义四种模式的文案（已迁移至 i18n.js 的 modes 节点）
 
+        let ripple = null; // RippleDistortion 水波纹特效实例（初始化见下方）
         let currentMode = 0; // 0=沙漠, 1=晨露, 2=冰川, 3=水域, 4=星空
         const modes = ['desert', 'dew', 'ice', 'water', 'star'];
         let modeIntervalId = null;
@@ -1901,6 +1929,10 @@ var _hmt = _hmt || [];
                 star: '#b19cd9'
             };
             document.documentElement.style.setProperty('--theme-color', theme[nextMode] || '#00d2ff');
+            // 水波纹扰动水域的着色跟随主题色
+            if (ripple && typeof ripple.setTint === 'function') {
+                ripple.setTint(theme[nextMode] || '#00d2ff');
+            }
         }
 
         function enterMode(nextMode) {
@@ -1949,6 +1981,59 @@ var _hmt = _hmt || [];
         setTimeout(() => {
             toggleMode();
         }, 15000);
+
+        // ========================================
+        // RippleDistortion 水波纹背景特效
+        // 首张纹理就绪后淡入接管背景；WebGL2 不可用 / 系统开启减弱动态 / ?
+        // no-ripple=1 时自动回退到原 CSS 背景，完全向后兼容。
+        // ========================================
+        (function initRipple() {
+            const reduceMotion = window.matchMedia &&
+                window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (new URLSearchParams(location.search).has('no-ripple') || reduceMotion) return;
+            if (typeof RippleDistortion === 'undefined') return;
+            const layer = document.getElementById('ripple-layer');
+            if (!layer) return;
+
+            // 使用当前已随机到的沙漠背景图作为首张纹理（与 CSS 背景同源，命中缓存）
+            const firstUrl = (bgLayers.desert.style.backgroundImage || '')
+                .replace(/^url\(["']?|["']?\)$/g, '');
+
+            ripple = new RippleDistortion(layer, {
+                src: firstUrl,
+                brushSize: 160,      // 涟漪直径（px）
+                strength: 0.16,      // 扭曲强度（克制，保持画面清晰）
+                swirl: 1.1,          // 旋转感
+                rings: 4,            // 同心环数
+                spread: 5,           // 扩散倍数
+                fade: 2.8,           // 消散时长（秒）
+                spacing: 18,         // 指针采样间距（px）
+                dispersion: 0.3,     // 轻微色散，折射质感
+                glint: 0.45,         // 波峰高光
+                tint: '#ffbd59',     // 扰动水域着色（随模式在 setThemeColor 中同步）
+                tintAmount: 0.14,
+                grayscale: false,    // 保留品牌色彩
+                trigger: 'both',     // 悬停划过 + 点击均可触发
+                clickStrength: 1.8,
+                quality: 'medium',   // 位移场分辨率（性能与效果平衡）
+                ambient: 0.0028,     // 静止时的微弱"水面呼吸"感
+                dprCap: 2,
+                onReady: function () {
+                    layer.classList.add('ready');
+                    document.body.classList.add('ripple-active');
+                },
+                onFallback: function () {
+                    // WebGL 上下文丢失等异常：还原 CSS 背景
+                    layer.classList.remove('ready');
+                    layer.style.display = 'none';
+                    document.body.classList.remove('ripple-active');
+                    ripple = null;
+                }
+            });
+            if (!ripple.supported) {
+                ripple = null;
+            }
+        })();
 
         // 语言切换时，立即刷新当前模式的轮播文案
         document.addEventListener('languagechange', function () {

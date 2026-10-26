@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-i18n-title="notFound.title">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +7,9 @@
     <meta name="robots" content="noindex, follow">
     <meta name="theme-color" content="#050607">
     <link rel="icon" type="image/png" href="./favicon.png">
+    <script src="./i18n-locales.js"></script>
+    <script src="./i18n.js"></script>
+    <link href="./i18n.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -41,12 +44,6 @@
             color: rgba(255,255,255,0.55);
             letter-spacing: 0.1em;
         }
-        .msg-en {
-            margin-top: 0.5rem;
-            font-size: 12px;
-            color: rgba(255,255,255,0.3);
-            letter-spacing: 0.08em;
-        }
         .home-link {
             display: inline-block;
             margin-top: 3rem;
@@ -58,7 +55,7 @@
             text-decoration: none;
             background: rgba(255,255,255,0.06);
             border: none;
-            border-radius: 999px;
+            border-radius: 8px;
             transition: all 0.4s ease;
         }
         .home-link:hover {
@@ -78,12 +75,12 @@
 </head>
 <body>
     <div class="glow" aria-hidden="true"></div>
+    <div class="lang-switch lang-switch--corner lang-switch--end" data-lang-switch></div>
     <main>
         <div class="brand">SHENGSHUI</div>
         <h1 class="code">404</h1>
-        <p class="msg">这一滴水，流去了别处。</p>
-        <p class="msg-en">This drop has flowed elsewhere.</p>
-        <a href="/" class="home-link">回到首页</a>
+        <p class="msg" data-i18n="notFound.msg">这一滴水，流去了别处。</p>
+        <a href="/" class="home-link" data-i18n="notFound.home">回到首页</a>
     </main>
 </body>
 </html>

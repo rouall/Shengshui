@@ -1,32 +1,205 @@
 /* ============================================
  * SHENGSHUI 语言切换器样式（配合 i18n.js 使用）
- * 设计原则：小巧、低调，不抢主视觉
+ * 设计原则：小巧、低调，不抢主视觉；小圆角；支持 RTL
  * ============================================ */
 
 .lang-switch {
-    display: flex;
+    position: relative;
+    display: inline-flex;
     align-items: center;
-    gap: 2px;
+    font-family: inherit;
 }
-.lang-btn {
+
+/* Tailwind 的 .fixed 可能被 CDN 后注入，提高优先级确保定位可靠 */
+.lang-switch.fixed {
+    position: fixed;
+}
+
+/* --- 触发按钮：低调、无边框、悬浮时才轻微显形 --- */
+.lang-trigger {
     appearance: none;
+    -webkit-appearance: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    height: 22px;
+    padding: 0 3px;
     cursor: pointer;
-    min-width: 26px;
-    height: 20px;
-    padding: 0 5px;
+    font-family: inherit;
     font-size: 10px;
     font-weight: 500;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.14em;
+    line-height: 1;
     color: rgba(255, 255, 255, 0.32);
     background: transparent;
     border: none;
-    border-radius: 999px;
-    transition: color 0.3s ease, background 0.3s ease;
+    border-radius: 4px;
+    transition: color 0.25s ease, background 0.25s ease;
 }
-.lang-btn:hover {
-    color: rgba(255, 255, 255, 0.75);
+
+.lang-trigger:hover {
+    color: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.05);
 }
-.lang-btn.active {
+
+.lang-trigger:focus-visible {
+    outline: 1px solid var(--theme-color, #00d2ff);
+    outline-offset: 2px;
+}
+
+.lang-switch.open .lang-trigger {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.lang-current {
+    white-space: nowrap;
+}
+
+/* --- 下拉菜单 --- */
+.lang-menu {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 8px);
+    min-width: 168px;
+    padding: 6px;
+    z-index: 70;
+    background: rgba(8, 12, 14, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+}
+
+.lang-switch.open .lang-menu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+/* 左下角时向上展开 */
+.lang-switch--up .lang-menu {
+    top: auto;
+    bottom: calc(100% + 8px);
+    transform: translateY(4px);
+}
+
+.lang-switch--up.open .lang-menu {
+    transform: translateY(0);
+}
+
+/* 靠右侧时向左展开，避免溢出视口 */
+.lang-switch--end .lang-menu {
+    left: auto;
+    right: 0;
+}
+
+/* --- 菜单项 --- */
+.lang-option {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    height: 32px;
+    padding: 0 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    color: rgba(255, 255, 255, 0.6);
+    background: transparent;
+    border: none;
+    border-radius: 5px;
+    text-align: left;
+    transition: background 0.18s ease, color 0.18s ease;
+}
+
+.lang-option:hover {
+    background: rgba(255, 255, 255, 0.07);
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.lang-option:focus-visible {
+    outline: 1px solid var(--theme-color, #00d2ff);
+    outline-offset: -1px;
+}
+
+.lang-option.active {
     color: var(--theme-color, #00d2ff);
-    background: rgba(255, 255, 255, 0.06);
+}
+
+.lang-option .lang-check {
+    font-size: 11px;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+}
+
+.lang-option.active .lang-check {
+    opacity: 1;
+}
+
+/* --- 404 页面右上角 --- */
+.lang-switch--corner {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.25rem;
+    z-index: 40;
+}
+
+/* --- RTL（阿拉伯语）适配 --- */
+html[dir="rtl"] .lang-menu {
+    left: auto;
+    right: 0;
+}
+
+html[dir="rtl"] .lang-switch--end .lang-menu {
+    left: 0;
+    right: auto;
+}
+
+html[dir="rtl"] .lang-switch--corner {
+    left: 1.25rem;
+    right: auto;
+}
+
+html[dir="rtl"] .lang-option {
+    text-align: right;
+}
+
+html[dir="rtl"] .lang-trigger,
+html[dir="rtl"] .lang-option {
+    letter-spacing: normal;
+}
+
+/* index.html 左下角固定定位在 RTL 下镜像到右下角 */
+html[dir="rtl"] .lang-switch.fixed {
+    left: auto;
+    right: 1rem;
+}
+
+@media (min-width: 768px) {
+    html[dir="rtl"] .lang-switch.fixed {
+        right: 2rem;
+    }
+}
+
+/* 阿拉伯语正文不使用字距，避免连写被拉开 */
+html[dir="rtl"] [data-i18n],
+html[dir="rtl"] [data-i18n-aria] {
+    letter-spacing: normal !important;
+}
+
+/* 详情面板由 JS 动态填充，单独做 RTL 字距处理 */
+html[dir="rtl"] #nav-panel-backdrop,
+html[dir="rtl"] #nav-panel-backdrop * {
+    letter-spacing: normal !important;
 }

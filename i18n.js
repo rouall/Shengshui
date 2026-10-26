@@ -1,116 +1,66 @@
 /* ============================================
- * SHENGSHUI i18n 共享模块（中 / 英）
+ * SHENGSHUI i18n 引擎（与词库 i18n-locales.js 配合使用）
  *
- * 语言优先级：localStorage 手动选择 > 浏览器语言 > 中文
+ * 语言优先级：localStorage 手动选择 > 浏览器语言 > 中文（默认）
+ * 支持语言：中 / 英 / 西 / 德 / 阿 / 俄 / 韩 / 葡 / 法 / 日
  *
  * 用法：
  *   1. 静态文案：元素加 data-i18n="key"（替换 textContent）
  *   2. 无障碍标签：元素加 data-i18n-aria="key"（替换 aria-label）
- *   3. 页面标题：<html data-i18n-title="meta.xxx">（替换 document.title）
- *   4. JS 动态文案：window.I18N.t('key.path')，支持 {n} 占位符（t 后自行 replace）
- *   5. 切换按钮：元素加 data-set-lang="zh|en"，激活态自动加 .active class
- *   6. 监听切换：document.addEventListener('languagechange', fn)
+ *   3. 图片描述：元素加 data-i18n-alt="key"（替换 alt）
+ *   4. 页面标题：<html data-i18n-title="meta.xxx">（替换 document.title）
+ *   5. JS 动态文案：window.I18N.t('key.path')，可为字符串或对象
+ *   6. 模板占位符：window.I18N.t.format('key', { n: 1, m: 2 })
+ *   7. 切换菜单：容器加 data-lang-switch，菜单由本模块自动生成
+ *   8. 监听切换：document.addEventListener('languagechange', fn)
+ *
+ * 注意：本文件依赖 i18n-locales.js 先加载。
  * ============================================ */
 (function () {
     'use strict';
 
-    var DICT = {
-        zh: {
-            meta: {
-                home: 'SHENGSHUI | 发现每一滴的价值',
-                products: 'SHENGSHUI | 产品'
-            },
-            nav: {
-                backHome: '返回首页',
-                coop: '合作'
-            },
-            hero: {
-                desc: '发现每一滴的价值。'
-            },
-            modes: {
-                desert: { sub: '· 感受生命的极度渴望 ·', desc: '当世界干涸，唯有一滴纯净，值得你不远万里。' },
-                dew: { sub: '· 沉浸自然的极致滋养 ·', desc: '源自晨曦微露的刹那，让每一个细胞重新呼吸。' },
-                ice: { sub: '· 体验极地的纯净力量 ·', desc: '来自冰原深处的馈赠，历经千年淬炼的极致纯净。' },
-                water: { sub: '· 源自自然的圣水 ·', desc: '以矿物与时间雕刻的层次感，入口即是高级的宁静。' },
-                star: { sub: '· 汲取星辰的永恒之水 ·', desc: '如同夜空中的璀璨星河，每一滴都承载着宇宙的深邃与神秘。' }
-            },
-            featured: {
-                name: '百岁山天然矿泉水',
-                desc: '1L × 30瓶 整箱装 · 天然好水',
-                cta: '去看看'
-            },
-            coop: {
-                title: '域名合作',
-                text1: '域名有自身价值，此域名可租用也可出售，有意向直接报价，真诚，互不墨迹。',
-                text2: '如果您对域名合作、品牌联名或投资意向感兴趣，请通过以下邮箱与我们建立连接。',
-                copy: '复制邮箱',
-                close: '关闭',
-                copied: '邮箱已复制',
-                copyFail: '复制失败，请手动复制'
-            },
-            productsPage: {
-                heading: '发现每一滴的价值',
-                status: '共 {n} 条精选，展示前 {m} 条。'
-            }
-        },
-        en: {
-            meta: {
-                home: 'SHENGSHUI | Discover the Value in Every Drop',
-                products: 'SHENGSHUI | Products'
-            },
-            nav: {
-                backHome: 'Home',
-                coop: 'PARTNER'
-            },
-            hero: {
-                desc: 'Discover the value in every drop.'
-            },
-            modes: {
-                desert: { sub: "· FEEL LIFE'S DEEPEST LONGING ·", desc: 'When the world runs dry, one pure drop is worth the journey.' },
-                dew: { sub: "· IMMERSE IN NATURE'S FINEST NOURISHMENT ·", desc: 'Born from the first light of dawn, every cell breathes anew.' },
-                ice: { sub: '· THE PURE POWER OF THE POLAR ·', desc: 'A gift from the heart of ancient ice, refined over a thousand years.' },
-                water: { sub: '· HOLY WATER, GIFTED BY NATURE ·', desc: 'Minerals and time carve its layers — serenity from the first sip.' },
-                star: { sub: '· ETERNAL WATER, DRAWN FROM THE STARS ·', desc: 'Like a galaxy across the night sky, each drop holds the depth of the cosmos.' }
-            },
-            featured: {
-                name: 'Ganten Natural Mineral Water',
-                desc: '1L × 30 Bottles · Naturally Pure',
-                cta: 'View'
-            },
-            coop: {
-                title: 'Domain Partnership',
-                text1: 'This domain carries intrinsic value and is available for lease or purchase. If interested, make your offer directly — sincerity over small talk.',
-                text2: 'For domain partnerships, brand collaborations, or investment inquiries, please connect with us via the email below.',
-                copy: 'Copy Email',
-                close: 'Close',
-                copied: 'Email copied',
-                copyFail: 'Copy failed — please copy manually'
-            },
-            productsPage: {
-                heading: 'Discover the Value in Every Drop',
-                status: 'Showing {m} of {n} curated products.'
-            }
-        }
-    };
-
+    var LANGS = window.I18N_LANGS || [];
+    var DICT = window.I18N_LOCALES || {};
     var STORAGE_KEY = 'shengshui_lang';
+    var DEFAULT_LANG = 'zh';
+
     var current = detect();
 
-    /* 语言检测：手动选择 > 浏览器语言 > 中文（默认） */
+    function isSupported(code) {
+        return !!(code && DICT[code]);
+    }
+
+    /* 浏览器语言标签归一化：zh-CN / zh_TW / pt-BR → zh / zh / pt */
+    function baseLang(tag) {
+        return String(tag || '').toLowerCase().split(/[-_]/)[0];
+    }
+
+    function getMeta(code) {
+        for (var i = 0; i < LANGS.length; i++) {
+            if (LANGS[i].code === code) return LANGS[i];
+        }
+        return { code: DEFAULT_LANG, htmlLang: 'zh-CN', native: '中文', short: '中', dir: 'ltr' };
+    }
+
+    /* 语言检测：手动选择 > 浏览器语言列表 > 中文（默认） */
     function detect() {
         try {
             var saved = localStorage.getItem(STORAGE_KEY);
-            if (saved === 'zh' || saved === 'en') return saved;
+            if (isSupported(saved)) return saved;
         } catch (e) { /* 隐私模式下忽略 */ }
-        var nav = String(navigator.language || 'zh-CN').toLowerCase();
-        return nav.indexOf('zh') === 0 ? 'zh' : 'en';
-    }
 
-    /* 支持点路径取值：t('modes.desert.sub')，缺失时回退中文 */
-    function t(key) {
-        var val = resolve(DICT[current], key);
-        if (val == null) val = resolve(DICT.zh, key);
-        return val == null ? key : val;
+        var list = [];
+        if (navigator.languages && navigator.languages.length) {
+            list = navigator.languages;
+        } else if (navigator.language) {
+            list = [navigator.language];
+        }
+
+        for (var i = 0; i < list.length; i++) {
+            var code = baseLang(list[i]);
+            if (isSupported(code)) return code;
+        }
+        return DEFAULT_LANG;
     }
 
     function resolve(obj, key) {
@@ -123,16 +73,34 @@
         return val;
     }
 
-    /* 模板占位符：t('productsPage.status').replace('{n}', 9) */
+    /* 回退顺序：当前语言 → 英文 → 中文 → key 本身 */
+    function t(key) {
+        var val = resolve(DICT[current], key);
+        if (val == null && current !== 'en') val = resolve(DICT.en, key);
+        if (val == null) val = resolve(DICT.zh, key);
+        return val == null ? key : val;
+    }
+
+    /* 模板占位符：t.format('productsPage.status', { n: 9, m: 9 }) */
     t.format = function (key, params) {
         var str = t(key);
+        if (typeof str !== 'string') return str;
         Object.keys(params || {}).forEach(function (k) {
             str = str.split('{' + k + '}').join(params[k]);
         });
         return str;
     };
 
+    function syncDocumentLang() {
+        var meta = getMeta(current);
+        document.documentElement.lang = meta.htmlLang || current;
+        document.documentElement.dir = meta.dir || 'ltr';
+    }
+
     function apply() {
+        /* 词库缺失时保持页面原文案，避免把 key 直接渲染出来 */
+        if (!isSupported(current)) return;
+
         document.querySelectorAll('[data-i18n]').forEach(function (el) {
             var val = t(el.getAttribute('data-i18n'));
             if (typeof val === 'string') el.textContent = val;
@@ -141,42 +109,161 @@
             var val = t(el.getAttribute('data-i18n-aria'));
             if (typeof val === 'string') el.setAttribute('aria-label', val);
         });
+        document.querySelectorAll('[data-i18n-alt]').forEach(function (el) {
+            var val = t(el.getAttribute('data-i18n-alt'));
+            if (typeof val === 'string') el.setAttribute('alt', val);
+        });
         var titleEl = document.querySelector('[data-i18n-title]');
         if (titleEl) {
             var title = t(titleEl.getAttribute('data-i18n-title'));
             if (typeof title === 'string') document.title = title;
         }
-        document.documentElement.lang = current === 'zh' ? 'zh-CN' : 'en';
+        syncDocumentLang();
     }
 
-    function updateSwitcher() {
-        document.querySelectorAll('[data-set-lang]').forEach(function (btn) {
-            btn.classList.toggle('active', btn.getAttribute('data-set-lang') === current);
+    /* ---------------- 语言切换菜单 ---------------- */
+
+    function el(tag, className, text) {
+        var node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text != null) node.textContent = text;
+        return node;
+    }
+
+    function renderSwitchers() {
+        document.querySelectorAll('[data-lang-switch]').forEach(function (host) {
+            if (host.getAttribute('data-rendered') === '1') return;
+            host.setAttribute('data-rendered', '1');
+            host.setAttribute('role', 'group');
+            host.innerHTML = '';
+
+            var trigger = el('button', 'lang-trigger');
+            trigger.type = 'button';
+            trigger.setAttribute('aria-haspopup', 'listbox');
+            trigger.setAttribute('aria-expanded', 'false');
+            trigger.appendChild(el('span', 'lang-current'));
+
+            var menu = el('div', 'lang-menu');
+            menu.setAttribute('role', 'listbox');
+
+            LANGS.forEach(function (lang) {
+                var option = el('button', 'lang-option');
+                option.type = 'button';
+                option.setAttribute('role', 'option');
+                option.setAttribute('data-set-lang', lang.code);
+                option.appendChild(el('span', 'lang-name', lang.native));
+                option.appendChild(el('span', 'lang-check', '✓'));
+                menu.appendChild(option);
+            });
+
+            host.appendChild(trigger);
+            host.appendChild(menu);
+        });
+    }
+
+    function updateSwitchers() {
+        var meta = getMeta(current);
+        var label = t('lang.label');
+        if (typeof label !== 'string') label = 'Language';
+
+        document.querySelectorAll('[data-lang-switch]').forEach(function (host) {
+            var trigger = host.querySelector('.lang-trigger');
+            var currentEl = host.querySelector('.lang-current');
+            var menu = host.querySelector('.lang-menu');
+
+            if (currentEl) currentEl.textContent = meta.short || meta.native;
+            if (trigger) trigger.setAttribute('aria-label', label + ': ' + meta.native);
+            if (menu) menu.setAttribute('aria-label', label);
+
+            host.querySelectorAll('.lang-option').forEach(function (option) {
+                var on = option.getAttribute('data-set-lang') === current;
+                option.classList.toggle('active', on);
+                option.setAttribute('aria-selected', on ? 'true' : 'false');
+            });
+        });
+    }
+
+    function closeSwitchers(except) {
+        document.querySelectorAll('[data-lang-switch].open').forEach(function (host) {
+            if (host === except) return;
+            host.classList.remove('open');
+            var trigger = host.querySelector('.lang-trigger');
+            if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        });
+    }
+
+    function openSwitcher(host) {
+        var trigger = host.querySelector('.lang-trigger');
+        closeSwitchers(host);
+        host.classList.add('open');
+        if (trigger) trigger.setAttribute('aria-expanded', 'true');
+    }
+
+    function bindSwitchers() {
+        document.addEventListener('click', function (e) {
+            var target = e.target;
+            if (!target || !target.closest) return;
+
+            var langBtn = target.closest('[data-set-lang]');
+            if (langBtn) {
+                setLang(langBtn.getAttribute('data-set-lang'));
+                return;
+            }
+
+            var trigger = target.closest('.lang-trigger');
+            if (trigger) {
+                var host = trigger.closest('[data-lang-switch]');
+                if (host) {
+                    if (host.classList.contains('open')) closeSwitchers();
+                    else openSwitcher(host);
+                }
+                return;
+            }
+
+            if (!target.closest('[data-lang-switch]')) closeSwitchers();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape') return;
+            var openHost = document.querySelector('[data-lang-switch].open');
+            if (!openHost) return;
+            closeSwitchers();
+            var trigger = openHost.querySelector('.lang-trigger');
+            if (trigger) trigger.focus();
         });
     }
 
     function setLang(lang) {
-        if (lang !== 'zh' && lang !== 'en' || lang === current) return;
-        current = lang;
-        try { localStorage.setItem(STORAGE_KEY, lang); } catch (e) { /* 忽略 */ }
-        apply();
-        updateSwitcher();
-        document.dispatchEvent(new CustomEvent('languagechange', { detail: { lang: lang } }));
+        if (!isSupported(lang)) return;
+        if (lang !== current) {
+            current = lang;
+            try { localStorage.setItem(STORAGE_KEY, lang); } catch (e) { /* 忽略 */ }
+            apply();
+            updateSwitchers();
+            document.dispatchEvent(new CustomEvent('languagechange', { detail: { lang: lang } }));
+        }
+        closeSwitchers();
     }
 
+    /* 尽早同步 html lang/dir，避免首屏字体与方向错位 */
+    try {
+        var initialMeta = getMeta(current);
+        document.documentElement.lang = initialMeta.htmlLang || current;
+        document.documentElement.dir = initialMeta.dir || 'ltr';
+    } catch (e) { /* 忽略 */ }
+
     document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('[data-set-lang]').forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                setLang(btn.getAttribute('data-set-lang'));
-            });
-        });
+        renderSwitchers();
         apply();
-        updateSwitcher();
+        updateSwitchers();
+        bindSwitchers();
     });
 
     window.I18N = {
         t: t,
         setLang: setLang,
-        getLang: function () { return current; }
+        getLang: function () { return current; },
+        apply: apply,
+        languages: LANGS.slice()
     };
 })();

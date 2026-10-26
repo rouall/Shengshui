@@ -51,3 +51,23 @@ body {
 .hero-title {
   font-family: 'Cinzel', 'Times New Roman', 'Georgia', serif;
 }
+
+/* 多语言字形回退：为各语言选择能正确渲染的字体系 */
+html[lang="ja"] body {
+  font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Noto Sans JP', 'Noto Sans SC', sans-serif;
+}
+html[lang="ko"] body {
+  font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', 'Noto Sans SC', sans-serif;
+}
+html[lang="ar"] body {
+  font-family: 'Geeza Pro', 'Noto Naskh Arabic', 'Segoe UI', Tahoma, 'Noto Sans SC', sans-serif;
+}
+html[lang="ru"] body {
+  font-family: 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif;
+}
+html[lang="es"] body,
+html[lang="de"] body,
+html[lang="fr"] body,
+html[lang="pt"] body {
+  font-family: 'Helvetica Neue', Arial, 'PingFang SC', 'Noto Sans SC', sans-serif;
+}

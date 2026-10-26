@@ -65,6 +65,7 @@
     <link rel="preconnect" href="https://www.googletagmanager.com">
     <link rel="apple-touch-icon" href="./favicon.png">
 
+    <script src="./i18n-locales.js"></script>
     <script src="./i18n.js"></script>
     <link href="./i18n.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -769,7 +770,7 @@ var _hmt = _hmt || [];
 
     <main class="flex-grow flex flex-col justify-center items-center text-center px-4 relative z-10">
         
-        <div id="sub-headline" class="text-sm md:text-base tracking-[0.5em] uppercase mb-6 font-light dynamic-text transition-all duration-1000">
+        <div id="sub-headline" data-i18n="modes.desert.sub" class="text-sm md:text-base tracking-[0.5em] uppercase mb-6 font-light dynamic-text transition-all duration-1000">
             · 感受生命的极度渴望 ·
         </div>
 
@@ -783,12 +784,12 @@ var _hmt = _hmt || [];
         </p>
 
         <!-- 精选好物推广卡片：TODO 替换为京东联盟推广链接 -->
-        <section id="featured-banner" class="relative z-10 flex flex-col items-center" aria-label="精选好物">
+        <section id="featured-banner" class="relative z-10 flex flex-col items-center" aria-label="精选好物" data-i18n-aria="featured.aria">
             <a href="https://m.tb.cn/h.j03Ww6w" target="_blank" rel="noopener noreferrer nofollow" class="featured-card group">
-                <img src="https://img.alicdn.com/i2/725677994/O1CN01EJzUbV28vJ9EUypVm_!!725677994.jpg" alt="百岁山天然矿泉水" loading="lazy" />
+                <img src="https://img.alicdn.com/i2/725677994/O1CN01EJzUbV28vJ9EUypVm_!!725677994.jpg" alt="百岁山天然矿泉水" data-i18n-alt="featured.name" loading="lazy" />
                 <div class="flex-1 min-w-0">
                     <div class="text-sm text-white/90 tracking-wide truncate" data-i18n="featured.name">百岁山天然矿泉水</div>
-                    <div class="text-xs text-white/50 mt-1.5 truncate" data-i18n="featured.desc">570ml*24瓶整箱装 · 天然好水</div>
+                    <div class="text-xs text-white/50 mt-1.5 truncate" data-i18n="featured.desc">1L × 30瓶 整箱装 · 天然好水</div>
                 </div>
                 <div class="fc-cta text-[11px] tracking-[0.3em] uppercase text-white/55 transition shrink-0" data-i18n="featured.cta">去看看</div>
             </a>
@@ -805,7 +806,7 @@ var _hmt = _hmt || [];
                             <div id="nav-panel-kicker" class="text-[11px] tracking-[0.55em] uppercase text-white/60">THE SOURCE</div>
                             <div id="nav-panel-title" class="hero-title text-2xl md:text-4xl mt-4 leading-tight">以水源定义奢侈标准</div>
                         </div>
-                        <button id="nav-panel-close" class="nav-panel-close text-xs tracking-[0.25em] uppercase">Close</button>
+                        <button id="nav-panel-close" class="nav-panel-close text-xs tracking-[0.25em] uppercase" data-i18n="navPanel.close">Close</button>
                     </div>
                     <div class="mt-7 md:mt-8 nav-panel-hairline"></div>
                     <div class="mt-7 md:mt-8 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10">
@@ -857,11 +858,8 @@ var _hmt = _hmt || [];
     <!-- 全局 Toast 提示 -->
     <div id="global-toast" class="toast" role="status" aria-live="polite"></div>
 
-    <!-- 左下角语言切换 -->
-    <div class="lang-switch fixed left-4 bottom-16 md:left-8 md:bottom-8 z-30" role="group" aria-label="Language / 语言">
-        <button type="button" class="lang-btn" data-set-lang="zh">中</button>
-        <button type="button" class="lang-btn" data-set-lang="en">EN</button>
-    </div>
+    <!-- 左下角语言切换（菜单由 i18n.js 生成） -->
+    <div class="lang-switch lang-switch--up fixed left-4 bottom-16 md:left-8 md:bottom-8 z-30" data-lang-switch></div>
 
     <footer class="absolute bottom-8 w-full text-center text-xs text-white/40 tracking-widest uppercase z-20">
         Copyright ©2025 Shengshui All Rights Reserved. <a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">京ICP备15004867号-3</a>
@@ -1331,43 +1329,21 @@ var _hmt = _hmt || [];
         const navPanelLead = document.getElementById('nav-panel-lead');
         const navPanelBody = document.getElementById('nav-panel-body');
 
-        const navPanelCopy = {
-            source: {
-                kicker: 'THE SOURCE',
-                title: '以水源定义奢侈标准',
-                lead: '一瓶水的价值，从来不止于解渴，而在于它所承载的地貌、时间与纯度。',
-                body: [
-                    '我们以“源头可追溯”为第一原则：从产地环境、矿物结构到微量元素比例，形成稳定且可被验证的风味与口感轮廓。',
-                    '真正的奢侈，是选择更少的干预，让自然完成更多的工作——让每一滴都拥有清晰的身份。'
-                ]
-            },
-            purification: {
-                kicker: 'PURIFICATION',
-                title: '净化，是对纯度的敬畏',
-                lead: '纯净不是“无”，而是“恰到好处的保留”：去除杂质，保留自然的矿物秩序。',
-                body: [
-                    '我们采用多重物理净化与精密过滤策略，重点控制异味、浑浊与微粒，确保入口的清澈与层次。',
-                    '每一次处理都以“低干预”为前提：不改变水的原生结构与风味骨架，让纯净回归本来。'
-                ]
-            },
-            lifestyle: {
-                kicker: 'LIFESTYLE',
-                title: '把喝水变成你的奢华生活方式',
-                lead: '水是你每天最稳定的投入，也是最容易被忽略的升级项。让它成为你生活质感的底色。',
-                body: [
-                    '从清晨第一口到夜晚收尾，我们建议以不同矿物轮廓匹配不同场景：醒脑、舒缓、搭配轻食或社交。',
-                    '一个更好的饮水系统，意味着更清晰的节律与更高级的自我照顾：少而精，稳定且可持续。'
-                ]
-            }
-        };
+        let currentPanelKey = null;
 
         function openNavPanel(key) {
-            const c = navPanelCopy[key];
-            if (!c) return;
+            const c = I18N.t('navPanel.' + key);
+            if (!c || typeof c !== 'object' || !Array.isArray(c.body)) return;
+            currentPanelKey = key;
             navPanelKicker.textContent = c.kicker;
             navPanelTitle.textContent = c.title;
             navPanelLead.textContent = c.lead;
-            navPanelBody.innerHTML = c.body.map(t => `<div>${t}</div>`).join('');
+            navPanelBody.innerHTML = '';
+            c.body.forEach((text) => {
+                const div = document.createElement('div');
+                div.textContent = text;
+                navPanelBody.appendChild(div);
+            });
             navPanelBackdrop.classList.add('show');
         }
 
@@ -2035,10 +2011,13 @@ var _hmt = _hmt || [];
             }
         })();
 
-        // 语言切换时，立即刷新当前模式的轮播文案
+        // 语言切换时，立即刷新当前模式的轮播文案与已打开的面板
         document.addEventListener('languagechange', function () {
             subHeadline.innerText = I18N.t('modes.' + modes[currentMode] + '.sub');
             heroDesc.innerText = I18N.t('modes.' + modes[currentMode] + '.desc');
+            if (currentPanelKey && navPanelBackdrop.classList.contains('show')) {
+                openNavPanel(currentPanelKey);
+            }
         });
 
         // ========================================

@@ -49,6 +49,7 @@
   <link rel="preconnect" href="https://cdn.tailwindcss.com">
   <link rel="preconnect" href="https://img.alicdn.com">
 
+  <script src="./i18n-locales.js"></script>
   <script src="./i18n.js"></script>
   <link href="./i18n.css" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -84,11 +85,8 @@
     <div class="px-6 md:px-10 py-6 flex items-center justify-between">
       <a href="./index.html" class="hero-title text-sm md:text-base tracking-[0.35em] text-white/90 hover:text-white transition">SHENGSHUI</a>
       <div class="flex items-center gap-6">
-        <div class="text-[11px] tracking-[0.35em] uppercase text-white/50 hidden md:block">Discover The Value In Every Drop</div>
-        <div class="lang-switch" role="group" aria-label="Language / 语言">
-          <button type="button" class="lang-btn" data-set-lang="zh">中</button>
-          <button type="button" class="lang-btn" data-set-lang="en">EN</button>
-        </div>
+        <div class="text-[11px] tracking-[0.35em] uppercase text-white/50 hidden md:block" data-i18n="productsPage.tagline">Discover The Value In Every Drop</div>
+        <div class="lang-switch lang-switch--end" data-lang-switch></div>
         <a href="./index.html" class="text-xs tracking-[0.25em] text-white/60 hover:text-white transition" data-i18n="nav.backHome">返回首页</a>
       </div>
     </div>
@@ -98,7 +96,7 @@
   <main class="px-6 md:px-10 py-14 md:py-16 max-w-7xl mx-auto">
     <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-10">
       <div>
-        <div class="text-[11px] tracking-[0.55em] uppercase text-white/55 mb-4">Products</div>
+        <div class="text-[11px] tracking-[0.55em] uppercase text-white/55 mb-4" data-i18n="productsPage.kicker">Products</div>
         <h1 class="hero-title text-3xl md:text-5xl leading-tight" data-i18n="productsPage.heading">发现每一滴的价值</h1>
       </div>
     </div>
@@ -140,7 +138,7 @@
 
         const img = item.image
           ? `<img src="${item.image}" alt="${(item.name || '').replace(/\"/g,'')}" class="w-full h-full object-cover opacity-95 group-hover:opacity-100 transition duration-700" loading="lazy" />`
-          : `<div class="w-full h-full flex items-center justify-center text-white/35 text-xs tracking-[0.25em] uppercase">No Image</div>`;
+          : `<div class="w-full h-full flex items-center justify-center text-white/35 text-xs tracking-[0.25em] uppercase" data-i18n="productsPage.noImage">No Image</div>`;
 
         a.innerHTML = `
           <div class="relative aspect-[4/3] img-shell">
@@ -148,12 +146,12 @@
             <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent"></div>
           </div>
           <div class="p-7">
-            <div class="text-[11px] tracking-[0.45em] uppercase text-white/45">Collection</div>
+            <div class="text-[11px] tracking-[0.45em] uppercase text-white/45" data-i18n="productsPage.collection">Collection</div>
             <div class="mt-3 text-xl tracking-wide text-white/95">${item.name || 'Untitled'}</div>
             ${item.desc ? `<div class="mt-3 text-sm text-white/55 leading-relaxed line-clamp-2">${item.desc}</div>` : `<div class="mt-3 text-sm text-white/30">&nbsp;</div>`}
             <div class="mt-6 flex items-center justify-between">
               <div class="text-sm tracking-[0.25em] text-white/70">&nbsp;</div>
-              <div class="text-[11px] tracking-[0.35em] uppercase text-white/55 group-hover:text-white/85 transition">View</div>
+              <div class="text-[11px] tracking-[0.35em] uppercase text-white/55 group-hover:text-white/85 transition" data-i18n="productsPage.view">View</div>
             </div>
           </div>
         `;

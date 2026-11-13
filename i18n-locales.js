@@ -47,7 +47,7 @@ window.I18N_LOCALES = {
         featured: {
             aria: '精选好物',
             name: '百岁山天然矿泉水',
-            desc: '1L × 30瓶 整箱装 · 天然好水',
+            desc: '整箱装 · 天然好水',
             cta: '去看看'
         },
         coop: {
@@ -131,7 +131,7 @@ window.I18N_LOCALES = {
         featured: {
             aria: 'Featured Selection',
             name: 'Ganten Natural Mineral Water',
-            desc: '1L × 30 Bottles · Naturally Pure',
+            desc: 'Full Case · Naturally Pure',
             cta: 'View'
         },
         coop: {
@@ -551,7 +551,7 @@ window.I18N_LOCALES = {
         featured: {
             aria: '추천 상품',
             name: '간텐 천연 미네랄 워터',
-            desc: '1L × 30병 · 자연 그대로의 순수함',
+            desc: '한 박스 구성 · 자연 그대로의 순수함',
             cta: '보기'
         },
         coop: {
@@ -803,7 +803,7 @@ window.I18N_LOCALES = {
         featured: {
             aria: 'おすすめ商品',
             name: 'ガンテン天然ミネラルウォーター',
-            desc: '1L × 30本 · 天然の良水',
+            desc: 'ケース入り · 天然の良水',
             cta: '見る'
         },
         coop: {
